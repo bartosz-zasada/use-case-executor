@@ -27,9 +27,14 @@ Configuration options:
 
 * ```order``` - optional, default: ```GPFCSHA``` (Get, Post, Files, Cookies, Server, Headers, Attributes). Use this 
 option to modify the order in which the parameter sources are read. The letters correspond to the first letters in the 
-aforementioned sources. It is allowed to omit one or more of them.
+aforementioned sources. It is allowed to omit one or more of them, in which case the omitted source will not be used.
 * ```map``` - optional. Allows to specify custom mapping from parameter names to the fields in the Use Case Request. 
 Use an associative array with input parameter names as keys and Use Case Request field names as values.
+* ```restrict``` - optional. Allows to restrict data sources of specified Use Case Request fields to selected parts
+of HTTP Request. The options value should be an array, with Use Case Request fields as keys and HTTP request source 
+identifiers as values (as a string, similar to the value of the ```order``` option - except in this case the order
+does not matter). For example, to allow field ```foo``` only to be populated by data from GET and POST parameters, 
+set the ```restrict``` option as follows: ```restrict={"foo"="GP"}```
 
 #### Example:
 Given a POST request with ```?foo=bar&name=John``` query parameters and ```foo=baz``` POST parameter, an HTTP Request 

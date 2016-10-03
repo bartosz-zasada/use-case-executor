@@ -4,6 +4,7 @@ namespace spec\Lamudi\UseCaseBundle\Processor\Input {
 
     use Foo\Bar\Request\DataFromHttpRequest;
     use Foo\Bar\Request\SpecificRequest;
+    use Lamudi\UseCaseBundle\Processor\Exception\UnsupportedInputException;
     use Lamudi\UseCaseBundle\Processor\Input\InputProcessorInterface;
     use PhpSpec\ObjectBehavior;
     use Prophecy\Argument;
@@ -27,6 +28,12 @@ namespace spec\Lamudi\UseCaseBundle\Processor\Input {
         public function it_is_an_input_processor()
         {
             $this->shouldHaveType(InputProcessorInterface::class);
+        }
+
+        public function it_throws_an_exception_if_input_type_is_not_http_request(\stdClass $unsupportedInput)
+        {
+            $request = new SpecificRequest();
+            $this->shouldThrow(UnsupportedInputException::class)->duringInitializeRequest($request, $unsupportedInput);
         }
 
         public function it_collects_data_from_http_request()
@@ -64,7 +71,7 @@ namespace spec\Lamudi\UseCaseBundle\Processor\Input {
             $this->postOverridesGet();
         }
 
-        public function it_reads_data_from_http_request_with_given_priority()
+        public function it_reads_data_from_http_request_by_given_order()
         {
             $httpRequest = $this->initializeHttpRequest([
                 'GET'     => ['var1' => 'G_value_1', 'var2' => 'G_value_2', 'var3' => 'G_value_3'],
@@ -126,6 +133,35 @@ namespace spec\Lamudi\UseCaseBundle\Processor\Input {
             $request->searchQuery->shouldBe('cheap hotels');
             $request->pageNumber->shouldBe(3);
             $request->sessionId->shouldBe('asd123');
+            $request->ipAddress->shouldBe('127.0.0.1');
+        }
+
+        public function it_restricts_data_to_be_retrieved_from_selected_sources()
+        {
+            $httpRequest = $this->initializeHttpRequest([
+                'GET'    => ['PHPSESSID' => 'nice try', 'pageNumber' => 21],
+                'POST'   => ['pageNumber' => 42],
+                'COOKIE' => ['PHPSESSID' => 'not from here',     'REMOTE_ADDR' => '8.8.8.8'],
+                'SERVER' => ['PHPSESSID' => 'from here', 'REMOTE_ADDR' => '127.0.0.1'],
+                'attrs'  => ['sessionId' => 'how did it get here']
+            ]);
+
+            $options = [
+                'map' => [
+                    'PHPSESSID'   => 'sessionId',
+                    'REMOTE_ADDR' => 'ipAddress'
+                ],
+                'restrict' => [
+                    'pageNumber' => 'G',
+                    'sessionId' => 'SC',
+                ],
+                'order' => 'GPFCSHA'
+            ];
+
+            /** @var SpecificRequest $request */
+            $request = $this->initializeRequest(new SpecificRequest(), $httpRequest, $options);
+            $request->pageNumber->shouldBe(21);
+            $request->sessionId->shouldBe('from here');
             $request->ipAddress->shouldBe('127.0.0.1');
         }
 

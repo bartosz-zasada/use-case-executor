@@ -1,4 +1,4 @@
-# Using multiple Input and Request Processors
+# Using multiple Input and Response Processors
 The Use Case Bundle allows you to use more than one Input Processor to get the data from the Input, and more than
 one Response Processor to process the Response and create the appropriate Output. The instructions on how to 
 configure the Use Case Executor to use multiple Processors have been written in chapter 
