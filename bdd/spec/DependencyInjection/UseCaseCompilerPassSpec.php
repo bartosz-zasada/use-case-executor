@@ -4,9 +4,11 @@ namespace spec\Lamudi\UseCaseBundle\DependencyInjection;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Lamudi\UseCaseBundle\Annotation\UseCase as UseCaseAnnotation;
+use Lamudi\UseCaseBundle\Annotation\InputProcessor as InputAnnotation;
 use Lamudi\UseCaseBundle\Container\Container;
 use Lamudi\UseCaseBundle\Container\ReferenceAcceptingContainerInterface;
 use Lamudi\UseCaseBundle\DependencyInjection\InvalidUseCase;
+use Lamudi\UseCaseBundle\Execution\UseCaseConfiguration;
 use Lamudi\UseCaseBundle\UseCase\RequestResolver;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
@@ -60,47 +62,55 @@ class UseCaseCompilerPassSpec extends ObjectBehavior
 
     public function it_adds_annotated_services_to_the_use_case_container(
         ContainerBuilder $containerBuilder, AnnotationReader $annotationReader, Definition $useCaseContainerDefinition,
+        UseCaseAnnotation $useCaseAnnotation, UseCaseConfiguration $useCaseConfiguration,
         Definition $useCaseExecutorDefinition
     )
     {
-        $containerBuilder->getDefinitions()->willReturn([
-            'uc1' => new Definition(UseCase1::class),
-            'uc2' => new Definition(UseCase2::class),
-            'uc3' => new Definition(UseCase3::class)
-        ]);
+        $useCaseAnnotation->getName()->willReturn('use_case_1');
+        $useCaseAnnotation->getConfiguration()->willReturn($useCaseConfiguration);
+        $useCaseConfiguration->getInputProcessorName()->willReturn('form');
+        $useCaseConfiguration->getInputProcessorOptions()->willReturn([]);
+        $useCaseConfiguration->getResponseProcessorName()->willReturn('twig');
+        $useCaseConfiguration->getResponseProcessorOptions()->willReturn([]);
 
-        $useCase1Annotation = new UseCaseAnnotation([
-            'value' => 'use_case_1',
-            'input' => 'form'
-        ]);
-        $useCase2Annotation1 = new UseCaseAnnotation([
-            'value'  => 'use_case_2',
-            'response' => 'twig'
-        ]);
-        $useCase2Annotation2 = new UseCaseAnnotation([
-            'value'  => 'use_case_2_alias',
-            'response' => 'json'
-        ]);
-        $useCase3Annotation = new UseCaseAnnotation([
-            'value' => 'use_case_3',
-            'input' => 'http',
-            'response' => 'json'
-        ]);
-
-        $annotationReader->getClassAnnotations(new \ReflectionClass(UseCase1::class))->willReturn([$useCase1Annotation]);
-        $annotationReader->getClassAnnotations(new \ReflectionClass(UseCase2::class))->willReturn([$useCase2Annotation1, $useCase2Annotation2]);
-        $annotationReader->getClassAnnotations(new \ReflectionClass(UseCase3::class))->willReturn([$useCase3Annotation]);
+        $containerBuilder->getDefinitions()->willReturn(['uc1' => new Definition(UseCase1::class)]);
+        $annotationReader->getClassAnnotations(new \ReflectionClass(UseCase1::class))->willReturn([$useCaseAnnotation]);
 
         $useCaseContainerDefinition->addMethodCall('set', ['use_case_1', new Reference('uc1')])->shouldBeCalled();
+        $useCaseExecutorDefinition->addMethodCall('assignInputProcessor', ['use_case_1', 'form', []])->shouldBeCalled();
+        $useCaseExecutorDefinition->addMethodCall('assignResponseProcessor', ['use_case_1', 'twig', []])->shouldBeCalled();
+
+        $this->process($containerBuilder);
+    }
+
+    public function it_adds_the_same_service_multiple_times_if_multiple_use_case_annotations_were_found(
+        ContainerBuilder $containerBuilder, AnnotationReader $annotationReader, Definition $useCaseContainerDefinition,
+        UseCaseAnnotation $useCaseAnnotation1, UseCaseConfiguration $useCaseConfiguration1,
+        UseCaseAnnotation $useCaseAnnotation2, UseCaseConfiguration $useCaseConfiguration2,
+        Definition $useCaseExecutorDefinition
+    )
+    {
+        $containerBuilder->getDefinitions()->willReturn(['uc2' => new Definition(UseCase2::class)]);
+        $useCaseAnnotation1->getName()->willReturn('use_case_2');
+        $useCaseAnnotation2->getName()->willReturn('use_case_2_alias');
+        $useCaseAnnotation1->getConfiguration()->willReturn($useCaseConfiguration1);
+        $useCaseAnnotation2->getConfiguration()->willReturn($useCaseConfiguration2);
+
+        $useCaseConfiguration1->getInputProcessorName()->willReturn('');
+        $useCaseConfiguration2->getInputProcessorName()->willReturn('');
+        $useCaseConfiguration1->getResponseProcessorName()->willReturn('twig');
+        $useCaseConfiguration2->getResponseProcessorName()->willReturn('json');
+        $useCaseConfiguration1->getResponseProcessorOptions()->willReturn([]);
+        $useCaseConfiguration2->getResponseProcessorOptions()->willReturn([]);
+
+        $annotationReader->getClassAnnotations(new \ReflectionClass(UseCase2::class))->willReturn([
+            $useCaseAnnotation1, $useCaseAnnotation2
+        ]);
+
         $useCaseContainerDefinition->addMethodCall('set', ['use_case_2', new Reference('uc2')])->shouldBeCalled();
         $useCaseContainerDefinition->addMethodCall('set', ['use_case_2_alias', new Reference('uc2')])->shouldBeCalled();
-        $useCaseContainerDefinition->addMethodCall('set', ['use_case_3', new Reference('uc3')])->shouldBeCalled();
-
-        $useCaseExecutorDefinition->addMethodCall('assignInputProcessor', ['use_case_1', 'form', []])->shouldBeCalled();
         $useCaseExecutorDefinition->addMethodCall('assignResponseProcessor', ['use_case_2', 'twig', []])->shouldBeCalled();
         $useCaseExecutorDefinition->addMethodCall('assignResponseProcessor', ['use_case_2_alias', 'json', []])->shouldBeCalled();
-        $useCaseExecutorDefinition->addMethodCall('assignInputProcessor', ['use_case_3', 'http', []])->shouldBeCalled();
-        $useCaseExecutorDefinition->addMethodCall('assignResponseProcessor', ['use_case_3', 'json', []])->shouldBeCalled();
 
         $this->process($containerBuilder);
     }
@@ -143,33 +153,19 @@ class UseCaseCompilerPassSpec extends ObjectBehavior
 
     public function it_uses_request_resolver_to_add_use_case_request_class_config_to_the_container(
         ContainerBuilder $containerBuilder, AnnotationReader $annotationReader, RequestResolver $requestResolver,
-        Definition $useCaseExecutorDefinition, Definition $useCaseContainerDefinition
+        Definition $useCaseExecutorDefinition, Definition $useCaseContainerDefinition,
+        UseCaseAnnotation $useCaseAnnotation, UseCaseConfiguration $useCaseConfiguration
     )
     {
-        $useCase1Annotation = new UseCaseAnnotation(['value' => 'use_case_1']);
-        $useCase2Annotation = new UseCaseAnnotation(['value' => 'use_case_2']);
-        $useCase3Annotation = new UseCaseAnnotation(['value' => 'use_case_3']);
+        $useCaseAnnotation->getName()->willReturn('use_case_1');
+        $useCaseAnnotation->getConfiguration()->willReturn($useCaseConfiguration);
 
-        $containerBuilder->getDefinitions()->willReturn([
-            'uc1' => new Definition(UseCase1::class),
-            'uc2' => new Definition(UseCase2::class),
-            'uc3' => new Definition(UseCase3::class)
-        ]);
-
-        $annotationReader->getClassAnnotations(new \ReflectionClass(UseCase1::class))->willReturn([$useCase1Annotation]);
-        $annotationReader->getClassAnnotations(new \ReflectionClass(UseCase2::class))->willReturn([$useCase2Annotation]);
-        $annotationReader->getClassAnnotations(new \ReflectionClass(UseCase3::class))->willReturn([$useCase3Annotation]);
-
+        $containerBuilder->getDefinitions()->willReturn(['uc1' => new Definition(UseCase1::class)]);
+        $annotationReader->getClassAnnotations(new \ReflectionClass(UseCase1::class))->willReturn([$useCaseAnnotation]);
         $requestResolver->resolve(UseCase1::class)->willReturn('UseCase1Request');
-        $requestResolver->resolve(UseCase2::class)->willReturn('UseCase2Request');
-        $requestResolver->resolve(UseCase3::class)->willReturn('UseCase3Request');
 
         $useCaseContainerDefinition->addMethodCall('set', ['use_case_1', new Reference('uc1')])->shouldBeCalled();
-        $useCaseContainerDefinition->addMethodCall('set', ['use_case_2', new Reference('uc2')])->shouldBeCalled();
-        $useCaseContainerDefinition->addMethodCall('set', ['use_case_3', new Reference('uc3')])->shouldBeCalled();
         $useCaseExecutorDefinition->addMethodCall('assignRequestClass', ['use_case_1', 'UseCase1Request'])->shouldBeCalled();
-        $useCaseExecutorDefinition->addMethodCall('assignRequestClass', ['use_case_2', 'UseCase2Request'])->shouldBeCalled();
-        $useCaseExecutorDefinition->addMethodCall('assignRequestClass', ['use_case_3', 'UseCase3Request'])->shouldBeCalled();
 
         $this->process($containerBuilder);
     }
@@ -246,6 +242,37 @@ class UseCaseCompilerPassSpec extends ObjectBehavior
         $contextResolverDefinition->addMethodCall('addContextDefinition', ['my_default_context', null, 'json'])->shouldBeCalled();
         $contextResolverDefinition->addMethodCall('addContextDefinition', ['my_other_context', 'array', null])->shouldBeCalled();
         $contextResolverDefinition->addMethodCall('addContextDefinition', ['web', ['type' => 'http', 'accept' => 'json'], 'twig'])->shouldBeCalled();
+
+        $this->process($containerBuilder);
+    }
+
+    public function it_configures_input_processors_using_separate_annotations(
+        ContainerBuilder $containerBuilder, AnnotationReader $annotationReader,
+        Definition $useCaseExecutorDefinition, Definition $useCaseContainerDefinition,
+        UseCaseAnnotation $useCaseAnnotation, UseCaseConfiguration $useCaseConfiguration,
+        InputAnnotation $inputAnnotation
+    )
+    {
+        $useCaseAnnotation->getName()->willReturn('use_case');
+        $useCaseAnnotation->getConfiguration()->willReturn($useCaseConfiguration);
+
+        $inputAnnotation->getName()->willReturn('http');
+        $inputAnnotation->getOptions()->willReturn(['order' => 'GPC']);
+
+        $containerBuilder->getDefinitions()->willReturn(['uc1' => new Definition(UseCase1::class)]);
+        $annotationReader->getClassAnnotations(new \ReflectionClass(UseCase1::class))->willReturn([
+            $useCaseAnnotation, $inputAnnotation
+        ]);
+
+        $useCaseConfiguration->addInputProcessor('http', ['order' => 'GPC'])->shouldBeCalled();
+        $useCaseConfiguration->getInputProcessorName()->willReturn('composite');
+        $useCaseConfiguration->getInputProcessorOptions()->willReturn(['json' => [], 'http' => ['order' => 'GPC']]);
+        $useCaseConfiguration->getResponseProcessorName()->willReturn('');
+
+        $useCaseContainerDefinition->addMethodCall('set', ['use_case', new Reference('uc1')])->shouldBeCalled();
+        $useCaseExecutorDefinition->addMethodCall(
+            'assignInputProcessor', ['use_case', 'composite', ['json' => [], 'http' => ['order' => 'GPC']]]
+        )->shouldBeCalled();
 
         $this->process($containerBuilder);
     }

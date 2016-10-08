@@ -20,7 +20,7 @@ class UseCaseSpec extends ObjectBehavior
         $this->shouldHaveType('Lamudi\UseCaseBundle\Annotation\UseCase');
     }
 
-    public function it_sets_input_processor()
+    public function it_creates_use_case_configuration()
     {
         $this->beConstructedWith([
             'value' => 'uc',
@@ -29,54 +29,11 @@ class UseCaseSpec extends ObjectBehavior
         ]);
 
         $this->getName()->shouldBe('uc');
-        $this->getInputProcessorName()->shouldBe('form');
-        $this->getInputProcessorOptions()->shouldBe([]);
-        $this->getResponseProcessorName()->shouldBe('json');
-        $this->getResponseProcessorOptions()->shouldBe([]);
+        $this->getConfiguration()->getInputProcessorName()->shouldBe('form');
+        $this->getConfiguration()->getInputProcessorOptions()->shouldBe([]);
+        $this->getConfiguration()->getResponseProcessorName()->shouldBe('json');
+        $this->getConfiguration()->getResponseProcessorOptions()->shouldBe([]);
     }
-
-    public function it_uses_composite_processors_if_options_are_arrays()
-    {
-        $this->beConstructedWith([
-            'value' => 'uc',
-            'input' => [
-                'form' => [
-                    'name' => 'search_form',
-                    'method' => 'DELETE'
-                ]
-            ],
-            'response' => [
-                'twig' => [
-                    'template' => 'base.html.twig',
-                    'form' => 'DumberForm',
-                    'css' => 'none'
-                ],
-                'cookies' => [
-                    'some' => 'cookie'
-                ]
-            ]
-        ]);
-
-        $this->getInputProcessorName()->shouldBe('composite');
-        $this->getInputProcessorOptions()->shouldBe([
-            'form' => [
-                'name' => 'search_form',
-                'method' => 'DELETE'
-            ]
-        ]);
-        $this->getResponseProcessorName()->shouldBe('composite');
-        $this->getResponseProcessorOptions()->shouldBe([
-            'twig' => [
-                'template' => 'base.html.twig',
-                'form' => 'DumberForm',
-                'css' => 'none'
-            ],
-            'cookies' => [
-                'some' => 'cookie'
-            ]
-        ]);
-    }
-
 
     public function it_throws_an_exception_if_an_unsupported_option_was_used()
     {

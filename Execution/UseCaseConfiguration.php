@@ -48,10 +48,10 @@ class UseCaseConfiguration
     public function __construct($data = [])
     {
         if (isset($data['input'])) {
-            $this->setConfiguration('inputProcessor', $data['input']);
+            $this->setConfiguration('input', $data['input']);
         }
         if (isset($data['response'])) {
-            $this->setConfiguration('responseProcessor', $data['response']);
+            $this->setConfiguration('response', $data['response']);
         }
     }
 
@@ -151,22 +151,50 @@ class UseCaseConfiguration
     }
 
     /**
+     * @param string $name
+     * @param array  $options
+     */
+    public function addInputProcessor($name, array $options = [])
+    {
+        if ($this->inputProcessorName === 'composite') {
+            $this->inputProcessorOptions[$name] = $options;
+        } else {
+            $config = [$this->inputProcessorName => $this->inputProcessorOptions, $name => $options];
+            $this->setConfiguration('input', $config);
+        }
+    }
+
+    /**
+     * @param string $name
+     * @param array  $options
+     */
+    public function addResponseProcessor($name, array $options = [])
+    {
+        if ($this->responseProcessorName === 'composite') {
+            $this->responseProcessorOptions[$name] = $options;
+        } else {
+            $config = [$this->responseProcessorName => $this->responseProcessorOptions, $name => $options];
+            $this->setConfiguration('response', $config);
+        }
+    }
+
+    /**
      * @param string       $field
-     * @param string|array $data
+     * @param string|array $configuration
      *
      * @return string
      * @throws InvalidConfigurationException
      */
-    private function setConfiguration($field, $data)
+    private function setConfiguration($field, $configuration)
     {
-        $nameField = $field . 'Name';
-        $optionsField = $field . 'Options';
+        $nameField = $field . 'ProcessorName';
+        $optionsField = $field . 'ProcessorOptions';
 
-        if (is_string($data)) {
-            $this->$nameField = $data;
+        if (is_string($configuration)) {
+            $this->$nameField = $configuration;
         } else {
             $this->$nameField = 'composite';
-            $this->$optionsField = $data;
+            $this->$optionsField = $configuration;
         }
     }
 }

@@ -3,6 +3,7 @@
 namespace Lamudi\UseCaseBundle\DependencyInjection;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Lamudi\UseCaseBundle\Annotation\InputProcessor as InputAnnotation;
 use Lamudi\UseCaseBundle\Annotation\UseCase as UseCaseAnnotation;
 use Lamudi\UseCaseBundle\Container\ReferenceAcceptingContainerInterface;
 use Lamudi\UseCaseBundle\UseCase\RequestResolver;
@@ -80,7 +81,9 @@ class UseCaseCompilerPass implements CompilerPassInterface
 
             foreach ($annotations as $annotation) {
                 if ($annotation instanceof UseCaseAnnotation && $this->validateUseCase($useCaseReflection)) {
-                    $this->registerUseCase($id, $serviceClass, $annotation, $executorDefinition, $useCaseContainerDefinition);
+                    $this->registerUseCase(
+                        $id, $serviceClass, $annotation, $annotations, $executorDefinition, $useCaseContainerDefinition
+                    );
                 }
             }
         }
@@ -154,7 +157,7 @@ class UseCaseCompilerPass implements CompilerPassInterface
             return true;
         } else {
             throw new InvalidUseCase(sprintf(
-                'Class "%s" has been annotated as a use case, but does not contain execute() method.', $useCase->getName()
+                'Class "%s" has been annotated as a Use Case, but does not contain execute() method.', $useCase->getName()
             ));
         }
     }
@@ -162,37 +165,21 @@ class UseCaseCompilerPass implements CompilerPassInterface
     /**
      * @param string            $serviceId
      * @param string            $serviceClass
-     * @param UseCaseAnnotation $annotation
+     * @param UseCaseAnnotation $useCaseAnnotation
+     * @param array             $annotations
      * @param Definition        $executorDefinition
      * @param Definition        $containerDefinition
      *
      * @throws \Lamudi\UseCaseBundle\UseCase\RequestClassNotFoundException
      */
-    private function registerUseCase($serviceId, $serviceClass, $annotation, $executorDefinition, $containerDefinition)
+    private function registerUseCase($serviceId, $serviceClass, $useCaseAnnotation, $annotations, $executorDefinition, $containerDefinition)
     {
-        $useCaseName = $annotation->getName() ?: $this->fqnToUseCaseName($serviceClass);
-        if ($this->containerAcceptsReferences($containerDefinition)) {
-            $containerDefinition->addMethodCall('set', [$useCaseName, $serviceId]);
-        } else {
-            $containerDefinition->addMethodCall('set', [$useCaseName, new Reference($serviceId)]);
-        }
+        $useCaseName = $useCaseAnnotation->getName() ?: $this->fqnToUseCaseName($serviceClass);
 
-        if ($annotation->getInputProcessorName()) {
-            $executorDefinition->addMethodCall(
-                'assignInputProcessor',
-                [$useCaseName, $annotation->getInputProcessorName(), $annotation->getInputProcessorOptions()]
-            );
-        }
-
-        if ($annotation->getResponseProcessorName()) {
-            $executorDefinition->addMethodCall(
-                'assignResponseProcessor',
-                [$useCaseName, $annotation->getResponseProcessorName(), $annotation->getResponseProcessorOptions()]
-            );
-        }
-
-        $requestClassName = $this->requestResolver->resolve($serviceClass);
-        $executorDefinition->addMethodCall('assignRequestClass', [$useCaseName, $requestClassName]);
+        $this->addUseCaseToUseCaseContainer($containerDefinition, $useCaseName, $serviceId);
+        $this->assignInputProcessorToUseCase($executorDefinition, $useCaseName, $useCaseAnnotation, $annotations);
+        $this->assignResponseProcessorToUseCase($executorDefinition, $useCaseName, $useCaseAnnotation);
+        $this->resolveUseCaseRequestClassName($executorDefinition, $useCaseName, $serviceClass);
     }
 
     /**
@@ -219,5 +206,72 @@ class UseCaseCompilerPass implements CompilerPassInterface
     {
         $unqualifiedName = substr($fqn, strrpos($fqn, '\\') + 1);
         return ltrim(strtolower(preg_replace('/[A-Z0-9]/', '_$0', $unqualifiedName)), '_');
+    }
+
+    /**
+     * @param Definition $containerDefinition
+     * @param string     $useCaseName
+     * @param string     $serviceId
+     */
+    private function addUseCaseToUseCaseContainer($containerDefinition, $useCaseName, $serviceId)
+    {
+        if ($this->containerAcceptsReferences($containerDefinition)) {
+            $containerDefinition->addMethodCall('set', [$useCaseName, $serviceId]);
+        } else {
+            $containerDefinition->addMethodCall('set', [$useCaseName, new Reference($serviceId)]);
+        }
+    }
+
+    /**
+     * @param Definition        $executorDefinition
+     * @param string            $useCaseName
+     * @param UseCaseAnnotation $useCaseAnnotation
+     * @param array             $annotations
+     */
+    private function assignInputProcessorToUseCase($executorDefinition, $useCaseName, $useCaseAnnotation, $annotations)
+    {
+        $useCaseConfig = $useCaseAnnotation->getConfiguration();
+        foreach ($annotations as $annotation) {
+            if ($annotation instanceof InputAnnotation) {
+                $useCaseConfig->addInputProcessor($annotation->getName(), $annotation->getOptions());
+            }
+        }
+
+        if ($useCaseConfig->getInputProcessorName()) {
+            $executorDefinition->addMethodCall(
+                'assignInputProcessor',
+                [$useCaseName, $useCaseConfig->getInputProcessorName(), $useCaseConfig->getInputProcessorOptions()]
+            );
+        }
+    }
+
+    /**
+     * @param Definition        $executorDefinition
+     * @param string            $useCaseName
+     * @param UseCaseAnnotation $annotation
+     */
+    private function assignResponseProcessorToUseCase($executorDefinition, $useCaseName, $annotation)
+    {
+        $useCaseConfig = $annotation->getConfiguration();
+
+        if ($useCaseConfig->getResponseProcessorName()) {
+            $executorDefinition->addMethodCall(
+                'assignResponseProcessor',
+                [$useCaseName, $useCaseConfig->getResponseProcessorName(), $useCaseConfig->getResponseProcessorOptions()]
+            );
+        }
+    }
+
+    /**
+     * @param Definition $executorDefinition
+     * @param string     $useCaseName
+     * @param string     $useCaseClassName
+     *
+     * @throws \Lamudi\UseCaseBundle\UseCase\RequestClassNotFoundException
+     */
+    private function resolveUseCaseRequestClassName($executorDefinition, $useCaseName, $useCaseClassName)
+    {
+        $requestClassName = $this->requestResolver->resolve($useCaseClassName);
+        $executorDefinition->addMethodCall('assignRequestClass', [$useCaseName, $requestClassName]);
     }
 }

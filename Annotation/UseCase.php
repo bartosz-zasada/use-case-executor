@@ -18,7 +18,7 @@ class UseCase
     /**
      * @var UseCaseConfiguration
      */
-    private $config;
+    private $configuration;
 
     /**
      * @param array $data
@@ -26,7 +26,7 @@ class UseCase
     public function __construct(array $data)
     {
         if (isset($data['value'])) {
-            $this->setName($data['value']);
+            $this->name = $data['value'];
         }
 
         $validOptions = ['value', 'input', 'response'];
@@ -37,7 +37,7 @@ class UseCase
             ));
         }
 
-        $this->config = new UseCaseConfiguration($data);
+        $this->configuration = new UseCaseConfiguration($data);
     }
 
     /**
@@ -49,42 +49,10 @@ class UseCase
     }
 
     /**
-     * @param string $name
+     * @return UseCaseConfiguration
      */
-    public function setName($name)
+    public function getConfiguration()
     {
-        $this->name = $name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getInputProcessorName()
-    {
-        return $this->config->getInputProcessorName();
-    }
-
-    /**
-     * @return array
-     */
-    public function getInputProcessorOptions()
-    {
-        return $this->config->getInputProcessorOptions();
-    }
-
-    /**
-     * @return string
-     */
-    public function getResponseProcessorName()
-    {
-        return $this->config->getResponseProcessorName();
-    }
-
-    /**
-     * @return array
-     */
-    public function getResponseProcessorOptions()
-    {
-        return $this->config->getResponseProcessorOptions();
+        return $this->configuration;
     }
 }
