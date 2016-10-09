@@ -16,7 +16,8 @@
         "symfony/dependency-injection": "~2.3|~3.0",
         "symfony/framework-bundle": "~2.3|~3.0",
         "symfony/serializer": "~2.3|~3.0",
-        "symfony/form": "~2.3|~3.0"
+        "symfony/form": "~2.3|~3.0",
+        "symfony/options-resolver": "~2.3|~3.0"
     },
     "require-dev": {
         "phpspec/phpspec": "~2.0"

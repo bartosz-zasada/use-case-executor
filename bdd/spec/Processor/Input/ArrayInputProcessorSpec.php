@@ -22,6 +22,12 @@ class ArrayInputProcessorSpec extends ObjectBehavior
         $this->shouldHaveType(InputProcessorInterface::class);
     }
 
+    public function it_throws_an_exception_if_an_unrecognized_option_is_used()
+    {
+        $options = ['what is this' => 'crazy thing'];
+        $this->shouldThrow(\InvalidArgumentException::class)->duringInitializeRequest(new MyRequest(), [], $options);
+    }
+
     public function it_copies_the_data_from_the_array_to_the_request_object()
     {
         $data = [

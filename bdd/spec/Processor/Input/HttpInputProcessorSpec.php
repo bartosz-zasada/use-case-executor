@@ -13,6 +13,7 @@ namespace spec\Lamudi\UseCaseBundle\Processor\Input {
     use Symfony\Component\HttpFoundation\HeaderBag;
     use Symfony\Component\HttpFoundation\ParameterBag;
     use Symfony\Component\HttpFoundation\Request as HttpRequest;
+    use Symfony\Component\HttpFoundation\Request;
     use Symfony\Component\HttpFoundation\ServerBag;
 
     /**
@@ -34,6 +35,14 @@ namespace spec\Lamudi\UseCaseBundle\Processor\Input {
         {
             $request = new SpecificRequest();
             $this->shouldThrow(UnsupportedInputException::class)->duringInitializeRequest($request, $unsupportedInput);
+        }
+
+        public function it_throws_an_exception_if_an_unrecognized_option_is_used()
+        {
+            $options = ['what is this' => 'crazy thing'];
+            $request = new SpecificRequest();
+            $input = new Request();
+            $this->shouldThrow(\InvalidArgumentException::class)->duringInitializeRequest($request, $input, $options);
         }
 
         public function it_collects_data_from_http_request()
@@ -211,7 +220,7 @@ namespace spec\Lamudi\UseCaseBundle\Processor\Input {
             $httpRequest = $this->initializeHttpRequest($httpRequestData);
 
             /** @var DataFromHttpRequest $request */
-            $request = $this->initializeRequest(new DataFromHttpRequest(), $httpRequest, ['options' => 'foo']);
+            $request = $this->initializeRequest(new DataFromHttpRequest(), $httpRequest);
             $request->var->shouldBe('attribute_value');
         }
 

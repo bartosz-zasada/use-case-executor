@@ -2,6 +2,7 @@
 
 namespace Lamudi\UseCaseBundle\Processor\Input;
 
+use Lamudi\UseCaseBundle\Processor\Exception\UnsupportedInputException;
 use Symfony\Component\HttpFoundation;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
@@ -34,8 +35,8 @@ class JsonInputProcessor extends ArrayInputProcessor implements InputProcessorIn
      */
     public function initializeRequest($request, $input, $options = [])
     {
-        if (!$input instanceof HttpFoundation\Request) {
-            return $request;
+        if (!($input instanceof HttpFoundation\Request)) {
+            throw new UnsupportedInputException('JSON', HttpFoundation\Request::class, $input);
         }
 
         $decoded = $this->jsonDecoder->decode($input->getContent(), 'json');

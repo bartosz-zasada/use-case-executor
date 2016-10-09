@@ -2,6 +2,8 @@
 
 namespace Lamudi\UseCaseBundle\Processor\Input;
 
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
 class ArrayInputProcessor implements InputProcessorInterface
 {
     /**
@@ -18,17 +20,15 @@ class ArrayInputProcessor implements InputProcessorInterface
      */
     public function initializeRequest($request, $input, $options = [])
     {
-        if (isset($options['map'])) {
-            $map = array_flip($options['map']);
-        } else {
-            $map = [];
-        }
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults(['map' => []]);
+        $options = $resolver->resolve($options);
 
+        $map = array_flip($options['map']);
         foreach ($request as $field => &$value) {
             if (isset($map[$field])) {
                 $field = $map[$field];
             }
-
             if (isset($input[$field])) {
                 $value = $input[$field];
             }

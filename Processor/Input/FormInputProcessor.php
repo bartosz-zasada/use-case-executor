@@ -4,6 +4,7 @@ namespace Lamudi\UseCaseBundle\Processor\Input;
 
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class FormInputProcessor implements InputProcessorInterface
 {
@@ -26,7 +27,7 @@ class FormInputProcessor implements InputProcessorInterface
      * Available options:
      * - name - required. The name of the form that will handle the request.
      * - data_field - optional. If specified, instead of populating the request fields, the processor dumps
-     *     all the form data into this field in the use case request as an associative array.
+     *     all the form data into this Use Case Request field as an associative array.
      *
      * @param object                 $request The Use Case Request object to be initialized.
      * @param HttpFoundation\Request $input   Symfony HTTP request object.
@@ -36,11 +37,9 @@ class FormInputProcessor implements InputProcessorInterface
      */
     public function initializeRequest($request, $input, $options = [])
     {
-        if (!isset($options['name'])) {
-            throw new \InvalidArgumentException();
-        }
+        $options = $this->validateOptions($options);
 
-        if (isset($options['data_field'])) {
+        if ($options['data_field']) {
             $form = $this->formFactory->create($options['name']);
             $form->handleRequest($input);
 
@@ -52,5 +51,19 @@ class FormInputProcessor implements InputProcessorInterface
         }
 
         return $request;
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return array
+     */
+    private function validateOptions($options)
+    {
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults(['data_field' => '']);
+        $resolver->setRequired(['name']);
+
+        return $resolver->resolve($options);
     }
 }

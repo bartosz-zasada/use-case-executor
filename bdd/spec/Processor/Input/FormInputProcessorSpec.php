@@ -7,6 +7,7 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @mixin \Lamudi\UseCaseBundle\Processor\Input\FormInputProcessor
@@ -35,20 +36,28 @@ class FormInputProcessorSpec extends ObjectBehavior
         $this->shouldThrow(\InvalidArgumentException::class)->duringInitializeRequest($request, [], []);
     }
 
-    public function it_uses_form_factory_to_create_form_by_name(FormFactoryInterface $formFactory)
+    public function it_throws_an_exception_if_an_unrecognized_option_is_used()
+    {
+        $options = ['name' => 'form_name', 'what is this' => 'crazy thing'];
+        $request = new FormUseCaseRequest();
+        $this->shouldThrow(\InvalidArgumentException::class)->duringInitializeRequest($request, [], $options);
+    }
+
+    public function it_uses_form_factory_to_create_form_by_name(FormFactoryInterface $formFactory, Request $input)
     {
         $request = new FormUseCaseRequest();
-        $this->initializeRequest($request, [], ['name' => 'order_form']);
+        $this->initializeRequest($request, $input, ['name' => 'order_form']);
 
         $formFactory->create('order_form', $request, ['data_class' => FormUseCaseRequest::class])->shouldHaveBeenCalled();
     }
 
-    public function it_uses_the_created_form_to_populate_request_fields(FormFactoryInterface $formFactory, FormInterface $form)
+    public function it_uses_the_created_form_to_populate_request_fields(
+        FormFactoryInterface $formFactory, FormInterface $form, Request $input
+    )
     {
         $request = new \stdClass();
         $formFactory->create('order_form', Argument::cetera())->willReturn($form);
 
-        $input = ['foo' => 'bar', 'baz' => 213];
         $this->initializeRequest($request, $input, ['name' => 'order_form']);
 
         $form->handleRequest($input)->shouldHaveBeenCalled();
@@ -66,7 +75,6 @@ class FormInputProcessorSpec extends ObjectBehavior
 
         $request = $this->initializeRequest($request, $input, ['name' => 'order_form', 'data_field' => 'formData']);
 
-        $form->submit($input)->shouldNotHaveBeenCalled();
         $request->formData->shouldBe($formData);
     }
 }

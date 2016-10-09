@@ -2,6 +2,7 @@
 
 namespace spec\Lamudi\UseCaseBundle\Processor\Input;
 
+use Lamudi\UseCaseBundle\Processor\Exception\UnsupportedInputException;
 use Lamudi\UseCaseBundle\Processor\Input\InputProcessorInterface;
 use Lamudi\UseCaseBundle\Processor\Input\JsonInputProcessor;
 use PhpSpec\ObjectBehavior;
@@ -29,12 +30,17 @@ class JsonInputProcessorSpec extends ObjectBehavior
         $this->shouldHaveType(InputProcessorInterface::class);
     }
 
-    public function it_does_nothing_if_input_is_not_a_symfony_http_request(DecoderInterface $jsonDecoder)
+    public function it_throws_an_exception_if_input_is_not_a_symfony_http_request()
     {
-        $jsonDecoder->decode(Argument::cetera())->shouldNotBeCalled();
-        $this->initializeRequest(new \stdClass(), new \stdClass());
+        $unsupportedInput = new \stdClass();
+        $this->shouldThrow(UnsupportedInputException::class)->duringInitializeRequest(new \stdClass(), $unsupportedInput);
     }
 
+    public function it_throws_an_exception_if_an_unrecognized_option_is_used(HttpRequest $input)
+    {
+        $options = ['what is this' => 'crazy thing'];
+        $this->shouldThrow(\InvalidArgumentException::class)->duringInitializeRequest(new MyRequest(), $input, $options);
+    }
     public function it_populates_the_request_with_json_body_data(HttpRequest $httpRequest, DecoderInterface $jsonDecoder)
     {
         $data = ['stringField' => 'asd', 'numberField' => 123, 'booleanField' => true, 'arrayField' => [3, 2, 1]];

@@ -4,6 +4,7 @@ namespace Lamudi\UseCaseBundle\Processor\Input;
 
 use Lamudi\UseCaseBundle\Processor\Exception\UnsupportedInputException;
 use Symfony\Component\HttpFoundation;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class HttpInputProcessor extends ArrayInputProcessor implements InputProcessorInterface
 {
@@ -32,16 +33,8 @@ class HttpInputProcessor extends ArrayInputProcessor implements InputProcessorIn
      */
     public function initializeRequest($request, $input, $options = [])
     {
-        if (!($input instanceof HttpFoundation\Request)) {
-            throw new UnsupportedInputException(sprintf(
-                'HTTP Input Processor supports only instances of %s, instance of %s given.',
-                HttpFoundation\Request::class, get_class($input)
-            ));
-        }
-
-        if (!isset($options['order'])) {
-            $options['order'] = self::DEFAULT_ORDER;
-        }
+        $this->validateInput($input);
+        $options = $this->validateOptions($options);
 
         $inputData = [
             'G' => $input->query->all(),
@@ -109,5 +102,34 @@ class HttpInputProcessor extends ArrayInputProcessor implements InputProcessorIn
         }
 
         return true;
+    }
+
+    /**
+     * @param mixed $input
+     *
+     * @throws UnsupportedInputException
+     */
+    private function validateInput($input)
+    {
+        if (!($input instanceof HttpFoundation\Request)) {
+            throw new UnsupportedInputException('HTTP', HttpFoundation\Request::class, $input);
+        }
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return array
+     */
+    private function validateOptions($options)
+    {
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults([
+            'order'    => self::DEFAULT_ORDER,
+            'map'      => [],
+            'restrict' => []
+        ]);
+        
+        return $resolver->resolve($options);
     }
 }
