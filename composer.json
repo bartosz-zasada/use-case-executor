@@ -1,13 +1,13 @@
 {
-    "name": "lamudi/use-case-bundle",
+    "name": "bamiz/use-case-bundle",
     "type": "library",
-    "description": "A set of tools for Use Case Driven Development with Symfony.",
-    "homepage": "https://github.com/lamudi-gmbh/use-case-bundle",
+    "description": "A Symfony Bundle that provides tools facilitating the isolation of business logic of your application from the delivery mechanisms.",
+    "homepage": "https://github.com/bartosz-zasada/use-case-bundle",
     "license": "MIT",
     "authors": [
         {
             "name"    : "Bartosz Zasada",
-            "email"   : "bartosz.zasada@lamudi.com",
+            "email"   : "zasada.bartosz@gmail.com",
             "role"    : "Developer"
         }
     ],
