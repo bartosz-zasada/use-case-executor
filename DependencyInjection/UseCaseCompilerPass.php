@@ -4,6 +4,8 @@ namespace Lamudi\UseCaseBundle\DependencyInjection;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Lamudi\UseCaseBundle\Annotation\InputProcessor as InputAnnotation;
+use Lamudi\UseCaseBundle\Annotation\ProcessorAnnotation;
+use Lamudi\UseCaseBundle\Annotation\ResponseProcessor;
 use Lamudi\UseCaseBundle\Annotation\UseCase as UseCaseAnnotation;
 use Lamudi\UseCaseBundle\Container\ReferenceAcceptingContainerInterface;
 use Lamudi\UseCaseBundle\UseCase\RequestResolver;
@@ -80,7 +82,9 @@ class UseCaseCompilerPass implements CompilerPassInterface
             }
 
             foreach ($annotations as $annotation) {
-                if ($annotation instanceof UseCaseAnnotation && $this->validateUseCase($useCaseReflection)) {
+                if ($annotation instanceof UseCaseAnnotation) {
+                    $this->validateUseCase($useCaseReflection);
+                    $this->validateAnnotations($annotations, $serviceClass);
                     $this->registerUseCase(
                         $id, $serviceClass, $annotation, $annotations, $executorDefinition, $useCaseContainerDefinition
                     );
@@ -146,19 +150,44 @@ class UseCaseCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * @param \ReflectionClass $useCase
+     * @param \ReflectionClass $useCaseReflection
      *
      * @return bool
      * @throws InvalidUseCase
      */
-    private function validateUseCase($useCase)
+    private function validateUseCase($useCaseReflection)
     {
-        if ($useCase->hasMethod('execute')) {
-            return true;
-        } else {
+        if (!$useCaseReflection->hasMethod('execute')) {
             throw new InvalidUseCase(sprintf(
-                'Class "%s" has been annotated as a Use Case, but does not contain execute() method.', $useCase->getName()
+                'Class "%s" has been annotated as a Use Case, but does not contain execute() method.',
+                $useCaseReflection->getName()
             ));
+        }
+    }
+
+    /**
+     * @param array  $annotations
+     * @param string $useCaseClassName
+     */
+    private function validateAnnotations($annotations, $useCaseClassName)
+    {
+        $useCaseAnnotationCount = 0;
+        $processorAnnotationCount = 0;
+        foreach ($annotations as $annotation) {
+            if ($annotation instanceof UseCaseAnnotation) {
+                $useCaseAnnotationCount++;
+            }
+            if ($annotation instanceof ProcessorAnnotation) {
+                $processorAnnotationCount++;
+            }
+        }
+        
+        if ($useCaseAnnotationCount > 1 && $processorAnnotationCount > 0) {
+            throw new \InvalidArgumentException(sprintf(
+                'It is not possible to use @InputProcessor or @ResponseProcessor annotations while registering ' .
+                'class %s as more than one Use Case. Please configure the Use Case contexts using parameters ' .
+                'in the respective @UseCase annotations.'
+            , $useCaseClassName));
         }
     }
 
@@ -178,7 +207,7 @@ class UseCaseCompilerPass implements CompilerPassInterface
 
         $this->addUseCaseToUseCaseContainer($containerDefinition, $useCaseName, $serviceId);
         $this->assignInputProcessorToUseCase($executorDefinition, $useCaseName, $useCaseAnnotation, $annotations);
-        $this->assignResponseProcessorToUseCase($executorDefinition, $useCaseName, $useCaseAnnotation);
+        $this->assignResponseProcessorToUseCase($executorDefinition, $useCaseName, $useCaseAnnotation, $annotations);
         $this->resolveUseCaseRequestClassName($executorDefinition, $useCaseName, $serviceClass);
     }
 
@@ -248,11 +277,17 @@ class UseCaseCompilerPass implements CompilerPassInterface
     /**
      * @param Definition        $executorDefinition
      * @param string            $useCaseName
-     * @param UseCaseAnnotation $annotation
+     * @param UseCaseAnnotation $useCaseAnnotations
+     * @param array             $annotations
      */
-    private function assignResponseProcessorToUseCase($executorDefinition, $useCaseName, $annotation)
+    private function assignResponseProcessorToUseCase($executorDefinition, $useCaseName, $useCaseAnnotations, $annotations)
     {
-        $useCaseConfig = $annotation->getConfiguration();
+        $useCaseConfig = $useCaseAnnotations->getConfiguration();
+        foreach ($annotations as $annotation) {
+            if ($annotation instanceof ResponseProcessor) {
+                $useCaseConfig->addResponseProcessor($annotation->getName(), $annotation->getOptions());
+            }
+        }
 
         if ($useCaseConfig->getResponseProcessorName()) {
             $executorDefinition->addMethodCall(

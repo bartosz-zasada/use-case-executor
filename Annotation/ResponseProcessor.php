@@ -6,7 +6,7 @@ namespace Lamudi\UseCaseBundle\Annotation;
  * @Annotation
  * @Target({"CLASS"})
  */
-class InputProcessor extends ProcessorAnnotation
+class ResponseProcessor extends ProcessorAnnotation
 {
-    protected $type = 'Input';
+    protected $type = 'Response';
 }

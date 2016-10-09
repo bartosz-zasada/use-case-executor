@@ -5,6 +5,7 @@ namespace spec\Lamudi\UseCaseBundle\DependencyInjection;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Lamudi\UseCaseBundle\Annotation\UseCase as UseCaseAnnotation;
 use Lamudi\UseCaseBundle\Annotation\InputProcessor as InputAnnotation;
+use Lamudi\UseCaseBundle\Annotation\ResponseProcessor as ResponseAnnotation;
 use Lamudi\UseCaseBundle\Container\Container;
 use Lamudi\UseCaseBundle\Container\ReferenceAcceptingContainerInterface;
 use Lamudi\UseCaseBundle\DependencyInjection\InvalidUseCase;
@@ -275,6 +276,58 @@ class UseCaseCompilerPassSpec extends ObjectBehavior
         )->shouldBeCalled();
 
         $this->process($containerBuilder);
+    }
+
+    public function it_configures_response_processors_using_separate_annotations(
+        ContainerBuilder $containerBuilder, AnnotationReader $annotationReader,
+        Definition $useCaseExecutorDefinition, Definition $useCaseContainerDefinition,
+        UseCaseAnnotation $useCaseAnnotation, UseCaseConfiguration $useCaseConfiguration,
+        ResponseAnnotation $responseAnnotation
+    )
+    {
+        $useCaseAnnotation->getName()->willReturn('use_case');
+        $useCaseAnnotation->getConfiguration()->willReturn($useCaseConfiguration);
+
+        $processorName = 'twig';
+        $processorOptions = ['template' => 'index.html.twig'];
+        $responseAnnotation->getName()->willReturn($processorName);
+        $responseAnnotation->getOptions()->willReturn($processorOptions);
+
+        $containerBuilder->getDefinitions()->willReturn(['uc1' => new Definition(UseCase1::class)]);
+        $annotationReader->getClassAnnotations(new \ReflectionClass(UseCase1::class))->willReturn([
+            $useCaseAnnotation, $responseAnnotation
+        ]);
+
+        $useCaseConfiguration->addResponseProcessor($processorName, $processorOptions)->shouldBeCalled();
+        $useCaseConfiguration->getInputProcessorName()->willReturn('');
+        $useCaseConfiguration->getResponseProcessorName()->willReturn($processorName);
+        $useCaseConfiguration->getResponseProcessorOptions()->willReturn($processorOptions);
+
+        $useCaseContainerDefinition->addMethodCall('set', ['use_case', new Reference('uc1')])->shouldBeCalled();
+        $useCaseExecutorDefinition->addMethodCall(
+            'assignResponseProcessor', ['use_case', $processorName, $processorOptions]
+        )->shouldBeCalled();
+
+        $this->process($containerBuilder);
+    }
+
+    public function it_does_not_accept_processor_annotations_if_many_use_case_annotations_are_used(
+        ContainerBuilder $containerBuilder, AnnotationReader $annotationReader,
+        UseCaseAnnotation $useCaseAnnotation1, UseCaseAnnotation $useCaseAnnotation2,
+        InputAnnotation $inputAnnotation, ResponseAnnotation $responseAnnotation
+    )
+    {
+        $containerBuilder->getDefinitions()->willReturn(['uc1' => new Definition(UseCase1::class)]);
+
+        $annotationReader->getClassAnnotations(new \ReflectionClass(UseCase1::class))->willReturn([
+            $useCaseAnnotation1, $useCaseAnnotation2, $inputAnnotation
+        ]);
+        $this->shouldThrow(\InvalidArgumentException::class)->duringProcess($containerBuilder);
+
+        $annotationReader->getClassAnnotations(new \ReflectionClass(UseCase1::class))->willReturn([
+            $useCaseAnnotation1, $useCaseAnnotation2, $responseAnnotation
+        ]);
+        $this->shouldThrow(\InvalidArgumentException::class)->duringProcess($containerBuilder);
     }
 }
 
