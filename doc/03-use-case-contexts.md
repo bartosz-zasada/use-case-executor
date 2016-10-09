@@ -75,7 +75,7 @@ lamudi_use_case:
 ```
 
 For details about how multiple Processors work together, see chapter 
-[Using multiple Input and Request Processors](05-using-multiple-input-and-request-processors.md)
+[Using multiple Input and Response Processors](05-using-multiple-input-and-response-processors.md)
 
 ## Named Contexts
 Similarly to the default Context, you can define any Context and give it whatever name you wish. 
@@ -160,7 +160,7 @@ You can also assign multiple Processors to a single Use Case:
 ```
 
 For details about how multiple Processors work together, see chapter 
-[Using multiple Input and Request Processors](05-using-multiple-input-and-request-processors.md)
+[Using multiple Input and Response Processors](05-using-multiple-input-and-response-processors.md)
 
 ## Anonymous Contexts
 

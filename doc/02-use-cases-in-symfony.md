@@ -178,7 +178,7 @@ see the var_dumped Request object, with the fields that match the query string v
 
 ## Response Processors
 
-To implement a Request Processor, create a class that extends ```RequestProcessorInterface```. It contains two methods: 
+To implement a Response Processor, create a class that extends ```ResponseProcessorInterface```. It contains two methods: 
 ```processResponse()``` and ```handleException()```.
 
 ```
