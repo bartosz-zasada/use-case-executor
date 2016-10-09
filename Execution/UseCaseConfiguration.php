@@ -156,7 +156,10 @@ class UseCaseConfiguration
      */
     public function addInputProcessor($name, array $options = [])
     {
-        if ($this->inputProcessorName === 'composite') {
+        if (!$this->inputProcessorName) {
+            $this->inputProcessorName = $name;
+            $this->inputProcessorOptions = $options;
+        } elseif ($this->inputProcessorName === 'composite') {
             $this->inputProcessorOptions[$name] = $options;
         } else {
             $config = [$this->inputProcessorName => $this->inputProcessorOptions, $name => $options];
@@ -170,7 +173,10 @@ class UseCaseConfiguration
      */
     public function addResponseProcessor($name, array $options = [])
     {
-        if ($this->responseProcessorName === 'composite') {
+        if (!$this->responseProcessorName) {
+            $this->responseProcessorName = $name;
+            $this->responseProcessorOptions = $options;
+        } elseif ($this->responseProcessorName === 'composite') {
             $this->responseProcessorOptions[$name] = $options;
         } else {
             $config = [$this->responseProcessorName => $this->responseProcessorOptions, $name => $options];
