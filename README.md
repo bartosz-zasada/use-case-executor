@@ -114,3 +114,5 @@ Documentation
 * [Toolkit](doc/04-toolkit.md) - Input and Response Processors shipped with the bundle
 * [Using multiple Input and Response Processors](05-using-multiple-input-and-response-processors.md) 
 
+[Slides from the presentation](http://www.slideshare.net/BartoszZasada/use-case-driven-development-in-symfony)
+given on June 7th, 2016 at [Berlin PHP User Group](http://bephpug.de) meeting
