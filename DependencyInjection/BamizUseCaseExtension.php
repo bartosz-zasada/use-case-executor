@@ -1,6 +1,6 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\DependencyInjection;
+namespace Bamiz\UseCaseBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Loader;
  *
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
  */
-class LamudiUseCaseExtension extends Extension
+class BamizUseCaseExtension extends Extension
 {
     /**
      * {@inheritdoc}
@@ -25,7 +25,7 @@ class LamudiUseCaseExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
-        $container->setParameter('lamudi_use_case.default_context', $config['default_context']);
-        $container->setParameter('lamudi_use_case.contexts', $config['contexts']);
+        $container->setParameter('bamiz_use_case.default_context', $config['default_context']);
+        $container->setParameter('bamiz_use_case.contexts', $config['contexts']);
     }
 }

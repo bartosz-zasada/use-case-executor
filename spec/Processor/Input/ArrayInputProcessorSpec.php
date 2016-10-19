@@ -1,9 +1,9 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\Processor\Input;
+namespace spec\Bamiz\UseCaseBundle\Processor\Input;
 
-use Lamudi\UseCaseBundle\Processor\Input\ArrayInputProcessor;
-use Lamudi\UseCaseBundle\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseBundle\Processor\Input\ArrayInputProcessor;
+use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -14,7 +14,7 @@ class ArrayInputProcessorSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('Lamudi\UseCaseBundle\Processor\Input\ArrayInputProcessor');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\Processor\Input\ArrayInputProcessor');
     }
 
     public function it_is_an_input_processor()

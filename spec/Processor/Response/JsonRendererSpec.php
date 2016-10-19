@@ -1,9 +1,9 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\Processor\Response;
+namespace spec\Bamiz\UseCaseBundle\Processor\Response;
 
-use Lamudi\UseCaseBundle\Exception\AlternativeCourseException;
-use Lamudi\UseCaseBundle\Processor\Response\JsonRenderer;
+use Bamiz\UseCaseBundle\Exception\AlternativeCourseException;
+use Bamiz\UseCaseBundle\Processor\Response\JsonRenderer;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,7 +27,7 @@ class JsonRendererSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Lamudi\UseCaseBundle\Processor\Response\JsonRenderer');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\Processor\Response\JsonRenderer');
     }
 
     public function it_returns_json_response_with_encoded_response_content(SerializerInterface $serializer)

@@ -1,6 +1,6 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Processor\Response;
+namespace Bamiz\UseCaseBundle\Processor\Response;
 
 /**
  * Use this interface to mark the response processors that should have access to input data.

@@ -1,11 +1,11 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\Annotation;
+namespace spec\Bamiz\UseCaseBundle\Annotation;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
-class InputProcessorSpec extends ObjectBehavior
+class ResponseProcessorSpec extends ObjectBehavior
 {
     public function it_sets_name_and_options_through_constructor()
     {

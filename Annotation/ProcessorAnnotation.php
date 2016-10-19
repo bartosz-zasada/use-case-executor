@@ -1,6 +1,6 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Annotation;
+namespace Bamiz\UseCaseBundle\Annotation;
 
 abstract class ProcessorAnnotation
 {

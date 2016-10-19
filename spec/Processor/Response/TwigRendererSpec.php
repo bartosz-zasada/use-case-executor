@@ -1,6 +1,6 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\Response\Processor;
+namespace spec\Bamiz\UseCaseBundle\Response\Processor;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
@@ -11,7 +11,7 @@ use Symfony\Component\Form\FormView;
 
 /**
  * Class TwigRendererSpec
- * @mixin \Lamudi\UseCaseBundle\Processor\Response\TwigRenderer
+ * @mixin \Bamiz\UseCaseBundle\Processor\Response\TwigRenderer
  */
 class TwigRendererSpec extends ObjectBehavior
 {
@@ -22,7 +22,7 @@ class TwigRendererSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Lamudi\UseCaseBundle\Response\Processor\TwigRenderer');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\Response\Processor\TwigRenderer');
     }
 
     public function it_throws_an_exception_when_no_template_is_specified()

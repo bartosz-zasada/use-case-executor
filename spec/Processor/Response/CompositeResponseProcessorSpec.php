@@ -1,16 +1,16 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\Processor\Response;
+namespace spec\Bamiz\UseCaseBundle\Processor\Response;
 
-use Lamudi\UseCaseBundle\Container\ContainerInterface;
-use Lamudi\UseCaseBundle\Exception\AlternativeCourseException;
-use Lamudi\UseCaseBundle\Processor\Exception\EmptyCompositeProcessorException;
-use Lamudi\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
+use Bamiz\UseCaseBundle\Container\ContainerInterface;
+use Bamiz\UseCaseBundle\Exception\AlternativeCourseException;
+use Bamiz\UseCaseBundle\Processor\Exception\EmptyCompositeProcessorException;
+use Bamiz\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
 /**
- * @mixin \Lamudi\UseCaseBundle\Processor\Response\CompositeResponseProcessor
+ * @mixin \Bamiz\UseCaseBundle\Processor\Response\CompositeResponseProcessor
  */
 class CompositeResponseProcessorSpec extends ObjectBehavior
 {
@@ -29,7 +29,7 @@ class CompositeResponseProcessorSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Lamudi\UseCaseBundle\Processor\Response\CompositeResponseProcessor');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\Processor\Response\CompositeResponseProcessor');
     }
 
     public function it_is_a_response_processor()

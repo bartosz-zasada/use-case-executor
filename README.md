@@ -10,7 +10,7 @@ Installation
 
 Just run 
 
-    $ composer require lamudi/use-case-bundle
+    $ composer require bamiz/use-case-bundle
 
 Configuration
 =============
@@ -29,7 +29,7 @@ class AppKernel extends Kernel
         $bundles = array(
             // ...
 
-            new Lamudi\UseCase\LamudiUseCaseBundle(),
+            new Bamiz\UseCase\BamizUseCaseBundle(),
         );
 
         // ...
@@ -70,7 +70,7 @@ Make sure that the Use Case class contains an ```execute()``` method with one ty
 
 namespace AppBundle\UseCase;
 
-use Lamudi\UseCaseBundle\Annotation\UseCase;
+use Bamiz\UseCaseBundle\Annotation\UseCase;
 
 /**
  * @UseCase("My Use Case", input="http", response="json")
@@ -99,7 +99,7 @@ class MyController extends Controller
 {
     public function myAction(Request $request)
     {
-        return $this->get('lamudi_use_case.executor')->execute('My Use Case', $request);
+        return $this->get('bamiz_use_case.executor')->execute('My Use Case', $request);
     }
 }
 

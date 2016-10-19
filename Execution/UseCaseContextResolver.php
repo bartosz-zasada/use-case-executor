@@ -1,16 +1,14 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Execution;
+namespace Bamiz\UseCaseBundle\Execution;
 
-use Lamudi\UseCaseBundle\Container\ContainerInterface;
-use Lamudi\UseCaseBundle\Container\ItemNotFoundException;
-use Lamudi\UseCaseBundle\Processor\Input\InputProcessorInterface;
-use Lamudi\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
+use Bamiz\UseCaseBundle\Container\ContainerInterface;
+use Bamiz\UseCaseBundle\Container\ItemNotFoundException;
+use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
 
 /**
  * Creates the context for the Use Case execution.
- *
- * @package Lamudi\UseCaseBundle\Execution
  */
 class UseCaseContextResolver
 {

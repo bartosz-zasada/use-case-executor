@@ -1,11 +1,11 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\Processor\Input {
+namespace spec\Bamiz\UseCaseBundle\Processor\Input {
 
     use Foo\Bar\Request\DataFromHttpRequest;
     use Foo\Bar\Request\SpecificRequest;
-    use Lamudi\UseCaseBundle\Processor\Exception\UnsupportedInputException;
-    use Lamudi\UseCaseBundle\Processor\Input\InputProcessorInterface;
+    use Bamiz\UseCaseBundle\Processor\Exception\UnsupportedInputException;
+    use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
     use PhpSpec\ObjectBehavior;
     use Prophecy\Argument;
     use Prophecy\Prophet;
@@ -17,13 +17,13 @@ namespace spec\Lamudi\UseCaseBundle\Processor\Input {
     use Symfony\Component\HttpFoundation\ServerBag;
 
     /**
-     * @mixin \Lamudi\UseCaseBundle\Processor\Input\HttpInputProcessor
+     * @mixin \Bamiz\UseCaseBundle\Processor\Input\HttpInputProcessor
      */
     class HttpInputProcessorSpec extends ObjectBehavior
     {
         function it_is_initializable()
         {
-            $this->shouldHaveType('Lamudi\UseCaseBundle\Processor\Input\HttpInputProcessor');
+            $this->shouldHaveType('Bamiz\UseCaseBundle\Processor\Input\HttpInputProcessor');
         }
 
         public function it_is_an_input_processor()

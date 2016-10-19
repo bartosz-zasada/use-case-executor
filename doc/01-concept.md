@@ -94,7 +94,7 @@ using the “List products in category” Use Case as an example.
 
 namespace MyBundle\UseCase;
 
-use Lamudi\UseCaseBundle\Annotation\UseCase;
+use Bamiz\UseCaseBundle\Annotation\UseCase;
 
 /**
  * @UseCase()
@@ -177,7 +177,7 @@ create the following exceptions:
 
 namespace MyBundle\UseCase;
 
-use Lamudi\UseCaseBundle\Exception\AlternativeCourseException;
+use Bamiz\UseCaseBundle\Exception\AlternativeCourseException;
 
 class CategoryNotFoundException extends AlternativeCourseException
 {
@@ -191,7 +191,7 @@ class CategoryNotFoundException extends AlternativeCourseException
 
 namespace MyBundle\UseCase;
 
-use Lamudi\UseCaseBundle\Exception\AlternativeCourseException;
+use Bamiz\UseCaseBundle\Exception\AlternativeCourseException;
 
 class RetrievalFailureException extends AlternativeCourseException
 {
@@ -211,7 +211,7 @@ Let's now write a skeleton implementation of the ```execute()``` method that wil
 
 namespace MyBundle\UseCase;
 
-use Lamudi\UseCaseBundle\Annotation\UseCase;
+use Bamiz\UseCaseBundle\Annotation\UseCase;
 
 /**
  * @UseCase()
@@ -275,7 +275,7 @@ class MyController extends Controller
     public function myAction($categoryId)
     {
         $input = ['categoryId' => $categoryId];
-        $response = $this->get('lamudi_use_case.executor')->execute('list_products_in_category', $input);
+        $response = $this->get('bamiz_use_case.executor')->execute('list_products_in_category', $input);
         return $this->render('MyBundle:products:category.html.twig', (array)$response);
     }
 }

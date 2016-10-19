@@ -1,8 +1,8 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Processor\Response;
+namespace Bamiz\UseCaseBundle\Processor\Response;
 
-use Lamudi\UseCaseBundle\Exception\AlternativeCourseException;
+use Bamiz\UseCaseBundle\Exception\AlternativeCourseException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 

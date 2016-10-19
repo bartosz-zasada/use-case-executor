@@ -1,24 +1,24 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\Execution;
+namespace spec\Bamiz\UseCaseBundle\Execution;
 
-use Lamudi\UseCaseBundle\Container\ContainerInterface;
-use Lamudi\UseCaseBundle\Execution\UseCaseConfiguration;
-use Lamudi\UseCaseBundle\Execution\UseCaseContext;
-use Lamudi\UseCaseBundle\Execution\UseCaseContextResolver;
-use Lamudi\UseCaseBundle\Container\ItemNotFoundException;
-use Lamudi\UseCaseBundle\Exception\AlternativeCourseException;
-use Lamudi\UseCaseBundle\Execution\UseCaseNotFoundException;
-use Lamudi\UseCaseBundle\Processor\Input\InputProcessorInterface;
-use Lamudi\UseCaseBundle\Processor\Response\InputAwareResponseProcessor;
+use Bamiz\UseCaseBundle\Container\ContainerInterface;
+use Bamiz\UseCaseBundle\Execution\UseCaseConfiguration;
+use Bamiz\UseCaseBundle\Execution\UseCaseContext;
+use Bamiz\UseCaseBundle\Execution\UseCaseContextResolver;
+use Bamiz\UseCaseBundle\Container\ItemNotFoundException;
+use Bamiz\UseCaseBundle\Exception\AlternativeCourseException;
+use Bamiz\UseCaseBundle\Execution\UseCaseNotFoundException;
+use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseBundle\Processor\Response\InputAwareResponseProcessor;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
-use Lamudi\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
-use Lamudi\UseCaseBundle\UseCase\UseCaseInterface;
+use Bamiz\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
+use Bamiz\UseCaseBundle\UseCase\UseCaseInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
 /**
- * @mixin \Lamudi\UseCaseBundle\Execution\UseCaseExecutor
+ * @mixin \Bamiz\UseCaseBundle\Execution\UseCaseExecutor
  */
 class UseCaseExecutorSpec extends ObjectBehavior
 {
@@ -40,7 +40,7 @@ class UseCaseExecutorSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Lamudi\UseCaseBundle\Execution\UseCaseExecutor');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\Execution\UseCaseExecutor');
     }
 
     public function it_throws_exception_when_no_use_case_by_given_name_exists(ContainerInterface $useCaseContainer)

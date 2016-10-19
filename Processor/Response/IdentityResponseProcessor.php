@@ -1,6 +1,6 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Processor\Response;
+namespace Bamiz\UseCaseBundle\Processor\Response;
 
 class IdentityResponseProcessor implements ResponseProcessorInterface
 {

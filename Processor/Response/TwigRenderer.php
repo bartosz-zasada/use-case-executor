@@ -1,8 +1,8 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Processor\Response;
+namespace Bamiz\UseCaseBundle\Processor\Response;
 
-use Lamudi\UseCaseBundle\Exception\AlternativeCourseException;
+use Bamiz\UseCaseBundle\Exception\AlternativeCourseException;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation;

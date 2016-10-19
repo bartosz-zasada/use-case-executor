@@ -16,7 +16,7 @@ You can configure the default Context in config.yml:
 ```
 # app/config/config.yml
 
-lamudi_use_case:
+bamiz_use_case:
     contexts:
         default:
             input:    my_input_processor
@@ -30,7 +30,7 @@ as a key, and the options must be provided as key-value pairs under that key:
 ```
 # app/config/config.yml
 
-lamudi_use_case:
+bamiz_use_case:
     contexts:
         default:
             input:    
@@ -56,7 +56,7 @@ If your Processor does not require any options, just put tilde next to the key:
 ```
 # app/config/config.yml
 
-lamudi_use_case:
+bamiz_use_case:
     contexts:
         default:
             input:    
@@ -83,7 +83,7 @@ Similarly to the default Context, you can define any Context and give it whateve
 ```
 # app/config/config.yml
 
-lamudi_use_case:
+bamiz_use_case:
     contexts:
         web:
             input:    http
@@ -111,7 +111,7 @@ the default one:
 ```
 # app/config/config.yml
 
-lamudi_use_case:
+bamiz_use_case:
     contexts:
         web:
             input:    http

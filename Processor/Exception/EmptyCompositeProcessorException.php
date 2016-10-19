@@ -1,6 +1,6 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Processor\Exception;
+namespace Bamiz\UseCaseBundle\Processor\Exception;
 
 class EmptyCompositeProcessorException extends \Exception
 {

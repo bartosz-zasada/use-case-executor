@@ -1,14 +1,12 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Container;
+namespace Bamiz\UseCaseBundle\Container;
 
 use Symfony\Component\DependencyInjection as DI;
 
 /**
  * This container stores names of services in Symfony Container, so that the services don't have to be
  * instantiated when the use cases are collected and added to the container.
- *
- * @package Lamudi\UseCaseBundle\Container
  */
 class DelegatingContainer implements ReferenceAcceptingContainerInterface
 {

@@ -1,16 +1,16 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\Processor\Input;
+namespace spec\Bamiz\UseCaseBundle\Processor\Input;
 
-use Lamudi\UseCaseBundle\Container\ContainerInterface;
-use Lamudi\UseCaseBundle\Processor\Exception\EmptyCompositeProcessorException;
-use Lamudi\UseCaseBundle\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseBundle\Container\ContainerInterface;
+use Bamiz\UseCaseBundle\Processor\Exception\EmptyCompositeProcessorException;
+use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
 use PhpSpec\Exception\Example\MatcherException;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
 /**
- * @mixin \Lamudi\UseCaseBundle\Processor\Input\CompositeInputProcessor
+ * @mixin \Bamiz\UseCaseBundle\Processor\Input\CompositeInputProcessor
  */
 class CompositeInputProcessorSpec extends ObjectBehavior
 {
@@ -26,7 +26,7 @@ class CompositeInputProcessorSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Lamudi\UseCaseBundle\Processor\Input\CompositeInputProcessor');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\Processor\Input\CompositeInputProcessor');
     }
 
     public function it_is_an_input_processor()

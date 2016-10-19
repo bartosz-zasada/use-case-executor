@@ -1,9 +1,9 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\UseCase;
+namespace spec\Bamiz\UseCaseBundle\UseCase;
 
-use Lamudi\UseCaseBundle\UseCase\RequestClassNotFoundException;
-use Lamudi\UseCaseBundle\UseCase\RequestResolver;
+use Bamiz\UseCaseBundle\UseCase\RequestClassNotFoundException;
+use Bamiz\UseCaseBundle\UseCase\RequestResolver;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -14,7 +14,7 @@ class RequestResolverSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('Lamudi\UseCaseBundle\UseCase\RequestResolver');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\UseCase\RequestResolver');
     }
 
     public function it_tries_to_use_type_hint_in_execute_method()

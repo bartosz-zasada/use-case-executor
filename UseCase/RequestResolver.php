@@ -1,6 +1,6 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\UseCase;
+namespace Bamiz\UseCaseBundle\UseCase;
 
 class RequestResolver
 {

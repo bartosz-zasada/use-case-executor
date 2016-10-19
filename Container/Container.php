@@ -1,6 +1,6 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Container;
+namespace Bamiz\UseCaseBundle\Container;
 
 class Container implements ContainerInterface
 {

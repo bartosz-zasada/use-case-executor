@@ -1,16 +1,16 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\DependencyInjection;
+namespace spec\Bamiz\UseCaseBundle\DependencyInjection;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Lamudi\UseCaseBundle\Annotation\UseCase as UseCaseAnnotation;
-use Lamudi\UseCaseBundle\Annotation\InputProcessor as InputAnnotation;
-use Lamudi\UseCaseBundle\Annotation\ResponseProcessor as ResponseAnnotation;
-use Lamudi\UseCaseBundle\Container\Container;
-use Lamudi\UseCaseBundle\Container\ReferenceAcceptingContainerInterface;
-use Lamudi\UseCaseBundle\DependencyInjection\InvalidUseCase;
-use Lamudi\UseCaseBundle\Execution\UseCaseConfiguration;
-use Lamudi\UseCaseBundle\UseCase\RequestResolver;
+use Bamiz\UseCaseBundle\Annotation\UseCase as UseCaseAnnotation;
+use Bamiz\UseCaseBundle\Annotation\InputProcessor as InputAnnotation;
+use Bamiz\UseCaseBundle\Annotation\ResponseProcessor as ResponseAnnotation;
+use Bamiz\UseCaseBundle\Container\Container;
+use Bamiz\UseCaseBundle\Container\ReferenceAcceptingContainerInterface;
+use Bamiz\UseCaseBundle\DependencyInjection\InvalidUseCase;
+use Bamiz\UseCaseBundle\Execution\UseCaseConfiguration;
+use Bamiz\UseCaseBundle\UseCase\RequestResolver;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * @mixin \Lamudi\UseCaseBundle\DependencyInjection\UseCaseCompilerPass
+ * @mixin \Bamiz\UseCaseBundle\DependencyInjection\UseCaseCompilerPass
  */
 class UseCaseCompilerPassSpec extends ObjectBehavior
 {
@@ -31,14 +31,14 @@ class UseCaseCompilerPassSpec extends ObjectBehavior
     {
         $this->beConstructedWith($annotationReader, $requestResolver);
 
-        $containerBuilder->findDefinition('lamudi_use_case.executor')->willReturn($useCaseExecutorDefinition);
-        $containerBuilder->findDefinition('lamudi_use_case.context_resolver')->willReturn($contextResolverDefinition);
-        $containerBuilder->findDefinition('lamudi_use_case.container.use_case')->willReturn($useCaseContainerDefinition);
-        $containerBuilder->findDefinition('lamudi_use_case.container.input_processor')->willReturn($inputProcessorContainerDefinition);
-        $containerBuilder->findDefinition('lamudi_use_case.container.response_processor')->willReturn($responseProcessorContainerDefinition);
-        $containerBuilder->getParameter('lamudi_use_case.default_context')->willReturn('default');
-        $containerBuilder->getParameter('lamudi_use_case.contexts')->willReturn([]);
-        $containerBuilder->has('lamudi_use_case.executor')->willReturn(true);
+        $containerBuilder->findDefinition('bamiz_use_case.executor')->willReturn($useCaseExecutorDefinition);
+        $containerBuilder->findDefinition('bamiz_use_case.context_resolver')->willReturn($contextResolverDefinition);
+        $containerBuilder->findDefinition('bamiz_use_case.container.use_case')->willReturn($useCaseContainerDefinition);
+        $containerBuilder->findDefinition('bamiz_use_case.container.input_processor')->willReturn($inputProcessorContainerDefinition);
+        $containerBuilder->findDefinition('bamiz_use_case.container.response_processor')->willReturn($responseProcessorContainerDefinition);
+        $containerBuilder->getParameter('bamiz_use_case.default_context')->willReturn('default');
+        $containerBuilder->getParameter('bamiz_use_case.contexts')->willReturn([]);
+        $containerBuilder->has('bamiz_use_case.executor')->willReturn(true);
         $useCaseContainerDefinition->getClass()->willReturn(Container::class);
         $inputProcessorContainerDefinition->getClass()->willReturn(Container::class);
         $responseProcessorContainerDefinition->getClass()->willReturn(Container::class);
@@ -50,13 +50,13 @@ class UseCaseCompilerPassSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Lamudi\UseCaseBundle\DependencyInjection\UseCaseCompilerPass');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\DependencyInjection\UseCaseCompilerPass');
     }
 
     public function it_does_nothing_if_use_case_executor_is_not_registered(ContainerBuilder $containerBuilder)
     {
-        $containerBuilder->has('lamudi_use_case.executor')->willReturn(false);
-        $containerBuilder->findDefinition('lamudi_use_case.executor')->shouldNotBeCalled();
+        $containerBuilder->has('bamiz_use_case.executor')->willReturn(false);
+        $containerBuilder->findDefinition('bamiz_use_case.executor')->shouldNotBeCalled();
         $containerBuilder->findTaggedServiceIds('use_case')->shouldNotBeCalled();
         $this->process($containerBuilder);
     }
@@ -236,8 +236,8 @@ class UseCaseCompilerPassSpec extends ObjectBehavior
             'my_other_context' => ['input' => 'array'],
             'web' => ['input' => ['type' => 'http', 'accept' => 'json'], 'response' => 'twig']
         ];
-        $containerBuilder->getParameter('lamudi_use_case.default_context')->willReturn('my_default_context');
-        $containerBuilder->getParameter('lamudi_use_case.contexts')->willReturn($contexts);
+        $containerBuilder->getParameter('bamiz_use_case.default_context')->willReturn('my_default_context');
+        $containerBuilder->getParameter('bamiz_use_case.contexts')->willReturn($contexts);
 
         $contextResolverDefinition->addMethodCall('setDefaultContextName', ['my_default_context'])->shouldBeCalled();
         $contextResolverDefinition->addMethodCall('addContextDefinition', ['my_default_context', null, 'json'])->shouldBeCalled();

@@ -1,17 +1,17 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\Execution;
+namespace spec\Bamiz\UseCaseBundle\Execution;
 
-use Lamudi\UseCaseBundle\Container\ContainerInterface;
-use Lamudi\UseCaseBundle\Execution\InvalidConfigurationException;
-use Lamudi\UseCaseBundle\Execution\UseCaseConfiguration;
-use Lamudi\UseCaseBundle\Execution\UseCaseContext;
-use Lamudi\UseCaseBundle\Execution\UseCaseContextResolver;
-use Lamudi\UseCaseBundle\Execution\InputProcessorNotFoundException;
-use Lamudi\UseCaseBundle\Execution\ResponseProcessorNotFoundException;
-use Lamudi\UseCaseBundle\Container\ItemNotFoundException;
-use Lamudi\UseCaseBundle\Processor\Input\InputProcessorInterface;
-use Lamudi\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
+use Bamiz\UseCaseBundle\Container\ContainerInterface;
+use Bamiz\UseCaseBundle\Execution\InvalidConfigurationException;
+use Bamiz\UseCaseBundle\Execution\UseCaseConfiguration;
+use Bamiz\UseCaseBundle\Execution\UseCaseContext;
+use Bamiz\UseCaseBundle\Execution\UseCaseContextResolver;
+use Bamiz\UseCaseBundle\Execution\InputProcessorNotFoundException;
+use Bamiz\UseCaseBundle\Execution\ResponseProcessorNotFoundException;
+use Bamiz\UseCaseBundle\Container\ItemNotFoundException;
+use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -42,7 +42,7 @@ class UseCaseContextResolverSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Lamudi\UseCaseBundle\Execution\UseCaseContextResolver');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\Execution\UseCaseContextResolver');
     }
 
     public function it_resolves_context_that_contains_input_and_response_processor(

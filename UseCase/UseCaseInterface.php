@@ -1,6 +1,6 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\UseCase;
+namespace Bamiz\UseCaseBundle\UseCase;
 
 /**
  * This interface serves as a specification of a use case object.

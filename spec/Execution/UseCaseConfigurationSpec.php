@@ -1,6 +1,6 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\Execution;
+namespace spec\Bamiz\UseCaseBundle\Execution;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
@@ -8,13 +8,13 @@ use Prophecy\Argument;
 /**
  * Class UseCaseConfigurationSpec
  *
- * @mixin \Lamudi\UseCaseBundle\Execution\UseCaseConfiguration
+ * @mixin \Bamiz\UseCaseBundle\Execution\UseCaseConfiguration
  */
 class UseCaseConfigurationSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('Lamudi\UseCaseBundle\Execution\UseCaseConfiguration');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\Execution\UseCaseConfiguration');
     }
 
     public function it_creates_processor_configuration_based_on_array()

@@ -1,10 +1,10 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\Container;
+namespace spec\Bamiz\UseCaseBundle\Container;
 
-use Lamudi\UseCaseBundle\Container\ItemNotFoundException;
-use Lamudi\UseCaseBundle\Processor\Input\InputProcessorInterface;
-use Lamudi\UseCaseBundle\UseCase\UseCaseInterface;
+use Bamiz\UseCaseBundle\Container\ItemNotFoundException;
+use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseBundle\UseCase\UseCaseInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -12,7 +12,7 @@ class ContainerSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('Lamudi\UseCaseBundle\Container\Container');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\Container\Container');
     }
 
     public function it_stores_an_item_in_the_container(UseCaseInterface $useCase, InputProcessorInterface $inputProcessor)

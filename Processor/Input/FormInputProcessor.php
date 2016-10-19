@@ -1,6 +1,6 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Processor\Input;
+namespace Bamiz\UseCaseBundle\Processor\Input;
 
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation;

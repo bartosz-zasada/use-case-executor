@@ -57,7 +57,7 @@ To implement an Input Processor, create a class that implements ```InputProcesso
 
 namespace MyBundle\UseCase;
 
-use Lamudi\UseCaseBundle\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
 
 class MyInputProcessor implements InputProcessorInterface
 {
@@ -86,7 +86,7 @@ the Use Case Request.
 
 namespace MyBundle\UseCase;
 
-use Lamudi\UseCaseBundle\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class MyInputProcessor implements InputProcessorInterface
@@ -129,7 +129,7 @@ In order to make sure that the Input Processor worked, let's simply var_dump the
 
 namespace MyBundle\UseCase;
 
-use Lamudi\UseCaseBundle\Annotation\UseCase;
+use Bamiz\UseCaseBundle\Annotation\UseCase;
 
 /**
  * @UseCase(input="http_get")
@@ -166,7 +166,7 @@ class MyController extends Controller
      */
     public function myAction(Request $request)
     {
-        $response = $this->get('lamudi_use_case.executor')->execute('list_products_in_category', $request);
+        $response = $this->get('bamiz_use_case.executor')->execute('list_products_in_category', $request);
         return $this->render('MyBundle:products:category.html.twig', (array)$response);
     }
 }
@@ -187,7 +187,7 @@ To implement a Response Processor, create a class that extends ```ResponseProces
 
 namespace MyBundle\UseCase;
 
-use Lamudi\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
+use Bamiz\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class VarDumpingResponseProcessor implements ResponseProcessorInterface
@@ -220,7 +220,7 @@ Use Case. The var_dumped objects will then be returned in the Content field of a
 
 namespace MyBundle\UseCase;
 
-use Lamudi\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
+use Bamiz\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class VarDumpingResponseProcessor implements ResponseProcessorInterface
@@ -271,7 +271,7 @@ It should throw an exception whenever the string ```missing_category``` is passe
 
 namespace MyBundle\UseCase;
 
-use Lamudi\UseCaseBundle\Annotation\UseCase;
+use Bamiz\UseCaseBundle\Annotation\UseCase;
 
 /**
  * @UseCase(input="http_get")
@@ -316,7 +316,7 @@ class MyController extends Controller
      */
     public function my3Action(Request $request)
     {
-        return $this->get('lamudi_use_case.executor')->execute('list_products_in_category', $request);
+        return $this->get('bamiz_use_case.executor')->execute('list_products_in_category', $request);
     }
 }
 

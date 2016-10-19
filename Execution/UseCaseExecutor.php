@@ -1,12 +1,12 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Execution;
+namespace Bamiz\UseCaseBundle\Execution;
 
-use Lamudi\UseCaseBundle\Container\ContainerInterface;
-use Lamudi\UseCaseBundle\Container\ItemNotFoundException;
-use Lamudi\UseCaseBundle\Processor\Response\InputAwareResponseProcessor;
-use Lamudi\UseCaseBundle\UseCase\RequestClassNotFoundException;
-use Lamudi\UseCaseBundle\UseCase\UseCaseInterface;
+use Bamiz\UseCaseBundle\Container\ContainerInterface;
+use Bamiz\UseCaseBundle\Container\ItemNotFoundException;
+use Bamiz\UseCaseBundle\Processor\Response\InputAwareResponseProcessor;
+use Bamiz\UseCaseBundle\UseCase\RequestClassNotFoundException;
+use Bamiz\UseCaseBundle\UseCase\UseCaseInterface;
 
 class UseCaseExecutor
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\Container;
+namespace spec\Bamiz\UseCaseBundle\Container;
 
-use Lamudi\UseCaseBundle\Container\ItemNotFoundException;
-use Lamudi\UseCaseBundle\Processor\Input\InputProcessorInterface;
-use Lamudi\UseCaseBundle\UseCase\UseCaseInterface;
+use Bamiz\UseCaseBundle\Container\ItemNotFoundException;
+use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseBundle\UseCase\UseCaseInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -18,24 +18,24 @@ class DelegatingContainerSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Lamudi\UseCaseBundle\Container\DelegatingContainer');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\Container\DelegatingContainer');
     }
 
     function it_is_a_container_that_accept_references()
     {
-        $this->shouldHaveType('Lamudi\UseCaseBundle\Container\ContainerInterface');
-        $this->shouldHaveType('Lamudi\UseCaseBundle\Container\ReferenceAcceptingContainerInterface');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\Container\ContainerInterface');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\Container\ReferenceAcceptingContainerInterface');
     }
 
     public function it_sets_a_service_reference_in_the_container(
         UseCaseInterface $useCase, InputProcessorInterface $inputProcessor, ContainerInterface $symfonyContainer
     )
     {
-        $symfonyContainer->get('lamudi_use_case.some_service')->willReturn($useCase);
-        $symfonyContainer->get('lamudi_use_case.input_processor.holy_magic')->willReturn($inputProcessor);
+        $symfonyContainer->get('bamiz_use_case.some_service')->willReturn($useCase);
+        $symfonyContainer->get('bamiz_use_case.input_processor.holy_magic')->willReturn($inputProcessor);
 
-        $this->set('use_case', 'lamudi_use_case.some_service');
-        $this->set('input_processor', 'lamudi_use_case.input_processor.holy_magic');
+        $this->set('use_case', 'bamiz_use_case.some_service');
+        $this->set('input_processor', 'bamiz_use_case.input_processor.holy_magic');
 
         $this->get('use_case')->shouldBe($useCase);
         $this->get('input_processor')->shouldBe($inputProcessor);

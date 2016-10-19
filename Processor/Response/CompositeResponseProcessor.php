@@ -1,9 +1,9 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Processor\Response;
+namespace Bamiz\UseCaseBundle\Processor\Response;
 
-use Lamudi\UseCaseBundle\Container\ContainerInterface;
-use Lamudi\UseCaseBundle\Processor\Exception\EmptyCompositeProcessorException;
+use Bamiz\UseCaseBundle\Container\ContainerInterface;
+use Bamiz\UseCaseBundle\Processor\Exception\EmptyCompositeProcessorException;
 
 class CompositeResponseProcessor implements ResponseProcessorInterface
 {

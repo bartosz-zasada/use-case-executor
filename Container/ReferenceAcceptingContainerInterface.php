@@ -1,6 +1,6 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Container;
+namespace Bamiz\UseCaseBundle\Container;
 
 /**
  * Use this interface to mark containers that accept references to services instead of their instances.

@@ -1,10 +1,10 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\Processor\Input;
+namespace spec\Bamiz\UseCaseBundle\Processor\Input;
 
-use Lamudi\UseCaseBundle\Processor\Exception\UnsupportedInputException;
-use Lamudi\UseCaseBundle\Processor\Input\InputProcessorInterface;
-use Lamudi\UseCaseBundle\Processor\Input\JsonInputProcessor;
+use Bamiz\UseCaseBundle\Processor\Exception\UnsupportedInputException;
+use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseBundle\Processor\Input\JsonInputProcessor;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
@@ -22,7 +22,7 @@ class JsonInputProcessorSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Lamudi\UseCaseBundle\Processor\Input\JsonInputProcessor');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\Processor\Input\JsonInputProcessor');
     }
 
     public function it_is_an_input_processor()

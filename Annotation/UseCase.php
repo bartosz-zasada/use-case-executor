@@ -1,8 +1,8 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Annotation;
+namespace Bamiz\UseCaseBundle\Annotation;
 
-use Lamudi\UseCaseBundle\Execution\UseCaseConfiguration;
+use Bamiz\UseCaseBundle\Execution\UseCaseConfiguration;
 
 /**
  * @Annotation

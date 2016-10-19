@@ -1,8 +1,8 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Processor\Input;
+namespace Bamiz\UseCaseBundle\Processor\Input;
 
-use Lamudi\UseCaseBundle\Processor\Exception\UnsupportedInputException;
+use Bamiz\UseCaseBundle\Processor\Exception\UnsupportedInputException;
 use Symfony\Component\HttpFoundation;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 

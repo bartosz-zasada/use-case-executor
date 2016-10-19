@@ -1,12 +1,12 @@
 <?php
 
-namespace spec\Lamudi\UseCaseBundle\Annotation;
+namespace spec\Bamiz\UseCaseBundle\Annotation;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
 /**
- * @mixin \Lamudi\UseCaseBundle\Annotation\UseCase
+ * @mixin \Bamiz\UseCaseBundle\Annotation\UseCase
  */
 class UseCaseSpec extends ObjectBehavior
 {
@@ -17,7 +17,7 @@ class UseCaseSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Lamudi\UseCaseBundle\Annotation\UseCase');
+        $this->shouldHaveType('Bamiz\UseCaseBundle\Annotation\UseCase');
     }
 
     public function it_creates_use_case_configuration()

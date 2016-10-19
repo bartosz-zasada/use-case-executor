@@ -41,7 +41,7 @@ Given a POST request with ```?foo=bar&name=John``` query parameters and ```foo=b
 object ```$httpRequest``` initialized by and a Use Case Request object ```$useCaseRequest``` defined as follows:
 
 ```
-class MyRequest extends \Lamudi\UseCaseBundle\Request\Request
+class MyRequest
 {
     public $foo;
     public $name;

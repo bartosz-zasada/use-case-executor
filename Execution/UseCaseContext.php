@@ -1,16 +1,14 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Execution;
+namespace Bamiz\UseCaseBundle\Execution;
 
-use Lamudi\UseCaseBundle\Processor\Input\InputProcessorInterface;
-use Lamudi\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
-use Lamudi\UseCaseBundle\UseCase\UseCaseInterface;
+use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
+use Bamiz\UseCaseBundle\UseCase\UseCaseInterface;
 
 /**
  * Use Case Context consists of all the processors resolved for the Use Case execution and the created empty
  * Use Case Request object. All these objects together create a context ready for the use case to be executed in.
- *
- * @package Lamudi\UseCaseBundle\Execution
  */
 class UseCaseContext
 {

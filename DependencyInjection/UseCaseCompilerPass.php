@@ -1,14 +1,14 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\DependencyInjection;
+namespace Bamiz\UseCaseBundle\DependencyInjection;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Lamudi\UseCaseBundle\Annotation\InputProcessor as InputAnnotation;
-use Lamudi\UseCaseBundle\Annotation\ProcessorAnnotation;
-use Lamudi\UseCaseBundle\Annotation\ResponseProcessor;
-use Lamudi\UseCaseBundle\Annotation\UseCase as UseCaseAnnotation;
-use Lamudi\UseCaseBundle\Container\ReferenceAcceptingContainerInterface;
-use Lamudi\UseCaseBundle\UseCase\RequestResolver;
+use Bamiz\UseCaseBundle\Annotation\InputProcessor as InputAnnotation;
+use Bamiz\UseCaseBundle\Annotation\ProcessorAnnotation;
+use Bamiz\UseCaseBundle\Annotation\ResponseProcessor;
+use Bamiz\UseCaseBundle\Annotation\UseCase as UseCaseAnnotation;
+use Bamiz\UseCaseBundle\Container\ReferenceAcceptingContainerInterface;
+use Bamiz\UseCaseBundle\UseCase\RequestResolver;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -46,7 +46,7 @@ class UseCaseCompilerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->has('lamudi_use_case.executor')) {
+        if (!$container->has('bamiz_use_case.executor')) {
             return;
         }
 
@@ -64,8 +64,8 @@ class UseCaseCompilerPass implements CompilerPassInterface
      */
     private function addUseCasesToContainer(ContainerBuilder $container)
     {
-        $executorDefinition = $container->findDefinition('lamudi_use_case.executor');
-        $useCaseContainerDefinition = $container->findDefinition('lamudi_use_case.container.use_case');
+        $executorDefinition = $container->findDefinition('bamiz_use_case.executor');
+        $useCaseContainerDefinition = $container->findDefinition('bamiz_use_case.container.use_case');
         $services = $container->getDefinitions();
 
         foreach ($services as $id => $serviceDefinition) {
@@ -98,7 +98,7 @@ class UseCaseCompilerPass implements CompilerPassInterface
      */
     private function addInputProcessorsToContainer(ContainerBuilder $containerBuilder)
     {
-        $processorContainerDefinition = $containerBuilder->findDefinition('lamudi_use_case.container.input_processor');
+        $processorContainerDefinition = $containerBuilder->findDefinition('bamiz_use_case.container.input_processor');
         $inputProcessors = $containerBuilder->findTaggedServiceIds('use_case_input_processor');
         foreach ($inputProcessors as $id => $tags) {
             foreach ($tags as $attributes) {
@@ -117,7 +117,7 @@ class UseCaseCompilerPass implements CompilerPassInterface
     private function addResponseProcessorsToContainer(ContainerBuilder $containerBuilder)
     {
         $processorContainerDefinition = $containerBuilder->findDefinition(
-            'lamudi_use_case.container.response_processor'
+            'bamiz_use_case.container.response_processor'
         );
         $responseProcessors = $containerBuilder->findTaggedServiceIds('use_case_response_processor');
 
@@ -137,9 +137,9 @@ class UseCaseCompilerPass implements CompilerPassInterface
      */
     private function addContextsToResolver(ContainerBuilder $containerBuilder)
     {
-        $resolverDefinition = $containerBuilder->findDefinition('lamudi_use_case.context_resolver');
-        $defaultContextName = $containerBuilder->getParameter('lamudi_use_case.default_context');
-        $contexts = (array)$containerBuilder->getParameter('lamudi_use_case.contexts');
+        $resolverDefinition = $containerBuilder->findDefinition('bamiz_use_case.context_resolver');
+        $defaultContextName = $containerBuilder->getParameter('bamiz_use_case.default_context');
+        $contexts = (array)$containerBuilder->getParameter('bamiz_use_case.contexts');
 
         $resolverDefinition->addMethodCall('setDefaultContextName', [$defaultContextName]);
         foreach ($contexts as $name => $context) {
@@ -199,7 +199,7 @@ class UseCaseCompilerPass implements CompilerPassInterface
      * @param Definition        $executorDefinition
      * @param Definition        $containerDefinition
      *
-     * @throws \Lamudi\UseCaseBundle\UseCase\RequestClassNotFoundException
+     * @throws \Bamiz\UseCaseBundle\UseCase\RequestClassNotFoundException
      */
     private function registerUseCase($serviceId, $serviceClass, $useCaseAnnotation, $annotations, $executorDefinition, $containerDefinition)
     {
@@ -302,7 +302,7 @@ class UseCaseCompilerPass implements CompilerPassInterface
      * @param string     $useCaseName
      * @param string     $useCaseClassName
      *
-     * @throws \Lamudi\UseCaseBundle\UseCase\RequestClassNotFoundException
+     * @throws \Bamiz\UseCaseBundle\UseCase\RequestClassNotFoundException
      */
     private function resolveUseCaseRequestClassName($executorDefinition, $useCaseName, $useCaseClassName)
     {

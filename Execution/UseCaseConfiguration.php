@@ -1,11 +1,9 @@
 <?php
 
-namespace Lamudi\UseCaseBundle\Execution;
+namespace Bamiz\UseCaseBundle\Execution;
 
 /**
  * Provides parameters necessary for the execution of the use case using the Use Case Executor.
- *
- * @package Lamudi\UseCaseBundle\Execution
  */
 class UseCaseConfiguration
 {
