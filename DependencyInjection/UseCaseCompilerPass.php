@@ -59,7 +59,6 @@ class UseCaseCompilerPass implements CompilerPassInterface
     /**
      * @param ContainerBuilder $container
      *
-     * @return array
      * @throws \Exception
      */
     private function addUseCasesToContainer(ContainerBuilder $container)
@@ -78,7 +77,7 @@ class UseCaseCompilerPass implements CompilerPassInterface
             try {
                 $annotations = $this->annotationReader->getClassAnnotations($useCaseReflection);
             } catch (\InvalidArgumentException $e) {
-                throw new \Exception(sprintf('Could not load annotations for class %s: %s', $serviceClass, $e->getMessage()));
+                throw new \LogicException(sprintf('Could not load annotations for class %s: %s', $serviceClass, $e->getMessage()));
             }
 
             foreach ($annotations as $annotation) {
@@ -95,11 +94,18 @@ class UseCaseCompilerPass implements CompilerPassInterface
 
     /**
      * @param ContainerBuilder $containerBuilder
+     *
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
      */
     private function addInputProcessorsToContainer(ContainerBuilder $containerBuilder)
     {
         $processorContainerDefinition = $containerBuilder->findDefinition('bamiz_use_case.container.input_processor');
         $inputProcessors = $containerBuilder->findTaggedServiceIds('use_case_input_processor');
+        /**
+         * @var string $id
+         * @var array  $tags
+         */
         foreach ($inputProcessors as $id => $tags) {
             foreach ($tags as $attributes) {
                 if ($this->containerAcceptsReferences($processorContainerDefinition)) {
@@ -113,6 +119,8 @@ class UseCaseCompilerPass implements CompilerPassInterface
 
     /**
      * @param ContainerBuilder $containerBuilder
+     *
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      */
     private function addResponseProcessorsToContainer(ContainerBuilder $containerBuilder)
     {
@@ -152,7 +160,6 @@ class UseCaseCompilerPass implements CompilerPassInterface
     /**
      * @param \ReflectionClass $useCaseReflection
      *
-     * @return bool
      * @throws InvalidUseCase
      */
     private function validateUseCase($useCaseReflection)
@@ -168,6 +175,8 @@ class UseCaseCompilerPass implements CompilerPassInterface
     /**
      * @param array  $annotations
      * @param string $useCaseClassName
+     *
+     * @throws \InvalidArgumentException
      */
     private function validateAnnotations($annotations, $useCaseClassName)
     {
@@ -256,6 +265,8 @@ class UseCaseCompilerPass implements CompilerPassInterface
      * @param string            $useCaseName
      * @param UseCaseAnnotation $useCaseAnnotation
      * @param array             $annotations
+     *
+     * @throws \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
      */
     private function assignInputProcessorToUseCase($executorDefinition, $useCaseName, $useCaseAnnotation, $annotations)
     {
@@ -279,6 +290,8 @@ class UseCaseCompilerPass implements CompilerPassInterface
      * @param string            $useCaseName
      * @param UseCaseAnnotation $useCaseAnnotations
      * @param array             $annotations
+     *
+     * @throws \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
      */
     private function assignResponseProcessorToUseCase($executorDefinition, $useCaseName, $useCaseAnnotations, $annotations)
     {

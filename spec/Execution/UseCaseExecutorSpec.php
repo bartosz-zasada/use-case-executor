@@ -16,6 +16,7 @@ use Bamiz\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
 use Bamiz\UseCaseBundle\UseCase\UseCaseInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Bamiz\UseCaseBundle\Execution\UseCaseExecutor;
 
 /**
  * @mixin \Bamiz\UseCaseBundle\Execution\UseCaseExecutor
@@ -31,16 +32,16 @@ class UseCaseExecutorSpec extends ObjectBehavior
         $this->beConstructedWith($useCaseContainer, $contextResolver);
 
         $useCaseContainer->get('use_case')->willReturn($useCase);
-        $this->assignRequestClass('use_case', '\stdClass');
+        $this->assignRequestClass('use_case', \stdClass::class);
         $context->getInputProcessor()->willReturn($defaultInputProcessor);
         $context->getInputProcessorOptions()->willReturn([]);
         $context->getResponseProcessor()->willReturn($defaultResponseProcessor);
         $context->getResponseProcessorOptions()->willReturn([]);
     }
 
-    function it_is_initializable()
+    public function it_is_initializable()
     {
-        $this->shouldHaveType('Bamiz\UseCaseBundle\Execution\UseCaseExecutor');
+        $this->shouldHaveType(UseCaseExecutor::class);
     }
 
     public function it_throws_exception_when_no_use_case_by_given_name_exists(ContainerInterface $useCaseContainer)
@@ -150,7 +151,7 @@ class UseCaseExecutorSpec extends ObjectBehavior
     )
     {
         $defaultEmptyConfiguration = new UseCaseConfiguration();
-        $defaultEmptyConfiguration->setRequestClassName('\stdClass');
+        $defaultEmptyConfiguration->setRequestClassName(\stdClass::class);
 
         $contextResolver->resolveContext($defaultEmptyConfiguration)->shouldBeCalled();
         $contextResolver->resolveContext($defaultEmptyConfiguration)->willReturn($context);

@@ -5,6 +5,7 @@ parameters:
     bamiz_use_case.container.use_case.class: Bamiz\UseCaseBundle\Container\DelegatingContainer
     bamiz_use_case.container.input_processor.class: Bamiz\UseCaseBundle\Container\Container
     bamiz_use_case.container.response_processor.class: Bamiz\UseCaseBundle\Container\Container
+    bamiz_use_case.actor_recognizer.composite.class: Bamiz\UseCaseBundle\Actor\CompositeActorRecognizer
 
     bamiz_use_case.input_processor.form.class: Bamiz\UseCaseBundle\Processor\Input\FormInputProcessor
     bamiz_use_case.input_processor.http.class: Bamiz\UseCaseBundle\Processor\Input\HttpInputProcessor
@@ -43,6 +44,9 @@ services:
 
     bamiz_use_case.request_resolver:
         class: "%bamiz_use_case.request_resolver.class%"
+
+    bamiz_use_case.actor_recognizer.composite:
+        class: "%bamiz_use_case.actor_recognizer.composite.class%"
 
     ##################################
     # INPUT PROCESSORS

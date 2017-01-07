@@ -13,7 +13,6 @@ use Bamiz\UseCaseBundle\Container\ItemNotFoundException;
 use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
 use Bamiz\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 
 /**
  * @mixin UseCaseContextResolver
@@ -40,9 +39,9 @@ class UseCaseContextResolverSpec extends ObjectBehavior
         $responseProcessorContainer->get('composite')->willReturn($compositeResponseProcessor);
     }
 
-    function it_is_initializable()
+    public function it_is_initializable()
     {
-        $this->shouldHaveType('Bamiz\UseCaseBundle\Execution\UseCaseContextResolver');
+        $this->shouldHaveType(UseCaseContextResolver::class);
     }
 
     public function it_resolves_context_that_contains_input_and_response_processor(

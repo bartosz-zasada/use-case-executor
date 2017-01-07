@@ -16,6 +16,7 @@ use Prophecy\Argument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
+use Bamiz\UseCaseBundle\DependencyInjection\UseCaseCompilerPass;
 
 /**
  * @mixin \Bamiz\UseCaseBundle\DependencyInjection\UseCaseCompilerPass
@@ -48,9 +49,9 @@ class UseCaseCompilerPassSpec extends ObjectBehavior
         $useCaseExecutorDefinition->addMethodCall(Argument::cetera())->willReturn();
     }
 
-    function it_is_initializable()
+    public function it_is_initializable()
     {
-        $this->shouldHaveType('Bamiz\UseCaseBundle\DependencyInjection\UseCaseCompilerPass');
+        $this->shouldHaveType(UseCaseCompilerPass::class);
     }
 
     public function it_does_nothing_if_use_case_executor_is_not_registered(ContainerBuilder $containerBuilder)
