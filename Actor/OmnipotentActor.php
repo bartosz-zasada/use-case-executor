@@ -15,4 +15,12 @@ class OmnipotentActor implements ActorInterface
     {
         return true;
     }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return 'omnipotent';
+    }
 }

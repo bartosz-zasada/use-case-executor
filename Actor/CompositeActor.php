@@ -42,4 +42,12 @@ class CompositeActor implements ActorInterface
     {
         $this->actors[] = $actor;
     }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return 'composite';
+    }
 }

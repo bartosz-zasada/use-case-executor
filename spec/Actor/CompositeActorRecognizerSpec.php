@@ -3,6 +3,7 @@
 namespace spec\Bamiz\UseCaseBundle\Actor;
 
 use Bamiz\UseCaseBundle\Actor\ActorInterface;
+use Bamiz\UseCaseBundle\Actor\ActorNotFoundException;
 use Bamiz\UseCaseBundle\Actor\ActorRecognizerInterface;
 use Bamiz\UseCaseBundle\Actor\CompositeActor;
 use Bamiz\UseCaseBundle\Actor\OmnipotentActor;
@@ -77,6 +78,29 @@ class CompositeActorRecognizerSpec extends ObjectBehavior
         $this->recognizeActor()->canExecute('eat cookies')->shouldBe(true);
         $this->recognizeActor()->canExecute('count to ten')->shouldBe(false);
     }
+
+    public function it_finds_registered_actors_by_name(
+        ActorRecognizerInterface $recognizer1,
+        ActorRecognizerInterface $recognizer2
+    )
+    {
+        $cookieMonster = new CookieMonster();
+        $jedi = new Jedi();
+
+        $recognizer1->recognizeActor()->willReturn($cookieMonster);
+        $recognizer2->recognizeActor()->willReturn($jedi);
+
+        $this->addActorRecognizer($recognizer1);
+        $this->addActorRecognizer($recognizer2);
+
+        $this->findActorByName('jedi')->shouldBe($jedi);
+        $this->findActorByName('cookie monster')->shouldBe($cookieMonster);
+    }
+
+    public function it_throws_an_exception_if_actor_cannot_be_found_by_name()
+    {
+        $this->shouldThrow(ActorNotFoundException::class)->duringFindActorByName('no such actor here');
+    }
 }
 
 class Jedi implements ActorInterface
@@ -90,6 +114,14 @@ class Jedi implements ActorInterface
     {
         return $useCaseName === 'use the force';
     }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return 'jedi';
+    }
 }
 
 class CookieMonster implements ActorInterface
@@ -102,5 +134,13 @@ class CookieMonster implements ActorInterface
     public function canExecute($useCaseName)
     {
         return $useCaseName === 'eat cookies';
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return 'cookie monster';
     }
 }

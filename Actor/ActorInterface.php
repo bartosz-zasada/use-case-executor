@@ -10,4 +10,9 @@ interface ActorInterface
      * @return bool
      */
     public function canExecute($useCaseName);
+
+    /**
+     * @return string
+     */
+    public function getName();
 }

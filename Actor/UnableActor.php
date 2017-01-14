@@ -13,4 +13,12 @@ class UnableActor implements ActorInterface
     {
         return false;
     }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return 'unable';
+    }
 }

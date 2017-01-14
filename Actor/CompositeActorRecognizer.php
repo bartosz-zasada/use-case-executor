@@ -23,6 +23,24 @@ class CompositeActorRecognizer implements ActorRecognizerInterface
     }
 
     /**
+     * @param string $actorName
+     *
+     * @return ActorInterface
+     * @throws ActorNotFoundException
+     */
+    public function findActorByName($actorName)
+    {
+        foreach ($this->actorRecognizers as $actorRecognizer) {
+            $actor = $actorRecognizer->recognizeActor();
+            if ($actorName === $actor->getName()) {
+                return $actor;
+            }
+        }
+
+        throw new ActorNotFoundException(sprintf('Actor "%s" not found.', $actorName));
+    }
+
+    /**
      * @param ActorRecognizerInterface $actorRecognizer
      */
     public function addActorRecognizer(ActorRecognizerInterface $actorRecognizer)
