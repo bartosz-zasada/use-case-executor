@@ -2,6 +2,7 @@
 
 namespace Bamiz\UseCaseBundle;
 
+use Bamiz\UseCaseBundle\DependencyInjection\ActorCompilerPass;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Bamiz\UseCaseBundle\DependencyInjection\UseCaseCompilerPass;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
@@ -32,5 +33,6 @@ class BamizUseCaseBundle extends Bundle
         parent::build($container);
 
         $container->addCompilerPass(new UseCaseCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
+        $container->addCompilerPass(new ActorCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
     }
 }

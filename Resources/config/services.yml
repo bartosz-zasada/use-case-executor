@@ -27,6 +27,7 @@ services:
         arguments:
             - "@bamiz_use_case.container.use_case"
             - "@bamiz_use_case.context_resolver"
+            - "@bamiz_use_case.actor_recognizer.composite"
 
     bamiz_use_case.context_resolver:
         class: "%bamiz_use_case.context_resolver.class%"

@@ -2,10 +2,10 @@
 
 namespace Bamiz\UseCaseBundle\Controller;
 
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-class UseCaseExecutingController implements ContainerAwareInterface
+class UseCaseExecutingController extends Controller
 {
     use ContainerAwareTrait;
 
@@ -34,7 +34,7 @@ class UseCaseExecutingController implements ContainerAwareInterface
     public function __call($name, $arguments)
     {
         $useCaseName = $this->camelCaseToSnakeCase($name);
-        $useCaseExecutor = $this->container->get('bamiz_use_case.executor');
+        $useCaseExecutor = $this->get('bamiz_use_case.executor');
         if ($this->actorName) {
             $useCaseExecutor = $useCaseExecutor->asActor($this->actorName);
         }

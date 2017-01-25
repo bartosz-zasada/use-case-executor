@@ -5,7 +5,7 @@ namespace spec\Bamiz\UseCaseBundle\Controller;
 use Bamiz\UseCaseBundle\Execution\UseCaseExecutor;
 use PhpSpec\ObjectBehavior;
 use Bamiz\UseCaseBundle\Controller\UseCaseExecutingController;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class UseCaseExecutingControllerSpec extends ObjectBehavior
@@ -15,9 +15,9 @@ class UseCaseExecutingControllerSpec extends ObjectBehavior
         $this->shouldHaveType(UseCaseExecutingController::class);
     }
 
-    public function it_is_a_container_aware_controller()
+    public function it_extends_base_symfony_controller()
     {
-        $this->shouldHaveType(ContainerAwareInterface::class);
+        $this->shouldHaveType(Controller::class);
     }
 
     public function it_uses_magic_to_execute_use_cases(

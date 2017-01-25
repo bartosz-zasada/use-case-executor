@@ -109,7 +109,10 @@ class UseCaseExecutor
     {
         $actor = $this->actorRecognizer->findActorByName($actorName);
 
-        return new UseCaseExecutor($this->useCaseContainer, $this->contextResolver, $this->actorRecognizer, $actor);
+        $executor = new UseCaseExecutor($this->useCaseContainer, $this->contextResolver, $this->actorRecognizer, $actor);
+        $executor->useCaseConfigurations = $this->useCaseConfigurations;
+
+        return $executor;
     }
 
     /**
