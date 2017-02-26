@@ -5,24 +5,11 @@ namespace Bamiz\UseCaseBundle\Execution;
 use Bamiz\UseCaseBundle\Actor\ActorInterface;
 use Bamiz\UseCaseBundle\Actor\ActorNotFoundException;
 use Bamiz\UseCaseBundle\Actor\CompositeActorRecognizer;
-use Bamiz\UseCaseBundle\Container\ContainerInterface;
-use Bamiz\UseCaseBundle\Container\ItemNotFoundException;
 use Bamiz\UseCaseBundle\Processor\Response\InputAwareResponseProcessor;
 use Bamiz\UseCaseBundle\UseCase\RequestClassNotFoundException;
-use Bamiz\UseCaseBundle\UseCase\UseCaseInterface;
 
 class UseCaseExecutor
 {
-    /**
-     * @var UseCaseConfiguration[]
-     */
-    private $useCaseConfigurations = [];
-
-    /**
-     * @var ContainerInterface
-     */
-    private $useCaseContainer;
-
     /**
      * @var UseCaseContextResolver
      */
@@ -39,20 +26,17 @@ class UseCaseExecutor
     private $actor;
 
     /**
-     * @param ContainerInterface       $useCaseContainer
      * @param UseCaseContextResolver   $contextResolver
      * @param CompositeActorRecognizer $actorRecognizer
      * @param ActorInterface           $actor
      */
     public function __construct(
-        ContainerInterface $useCaseContainer,
         UseCaseContextResolver $contextResolver,
         CompositeActorRecognizer $actorRecognizer,
         ActorInterface $actor = null
     )
     {
         $this->contextResolver = $contextResolver;
-        $this->useCaseContainer = $useCaseContainer;
         $this->actorRecognizer = $actorRecognizer;
         $this->actor = $actor;
     }
@@ -66,21 +50,21 @@ class UseCaseExecutor
      *
      * @param string       $useCaseName
      * @param mixed        $input
-     * @param string|array $context
+     * @param string|array $configuration
      *
      * @return mixed
      * @throws ActorCannotExecuteUseCaseException
      * @throws RequestClassNotFoundException
      * @throws UseCaseNotFoundException
      */
-    public function execute($useCaseName, $input = null, $context = null)
+    public function execute($useCaseName, $input = null, $configuration = [])
     {
         $this->checkIfActorCanExecuteUseCase($useCaseName);
 
-        $useCase = $this->getUseCase($useCaseName);
-        $context = $this->getUseCaseContext($useCaseName, $context);
+        $context = $this->getUseCaseContext($useCaseName, $configuration);
 
-        $request = $this->createUseCaseRequest($useCaseName);
+        $useCase = $context->getUseCase();
+        $request = $context->getUseCaseRequest();
         $inputProcessor = $context->getInputProcessor();
         $inputProcessorOptions = $context->getInputProcessorOptions();
         $responseProcessor = $context->getResponseProcessor();
@@ -109,10 +93,7 @@ class UseCaseExecutor
     {
         $actor = $this->actorRecognizer->findActorByName($actorName);
 
-        $executor = new UseCaseExecutor($this->useCaseContainer, $this->contextResolver, $this->actorRecognizer, $actor);
-        $executor->useCaseConfigurations = $this->useCaseConfigurations;
-
-        return $executor;
+        return new UseCaseExecutor($this->contextResolver, $this->actorRecognizer, $actor);
     }
 
     /**
@@ -124,43 +105,6 @@ class UseCaseExecutor
     }
 
     /**
-     * Assigns a Use Case Request class to given Use Case.
-     *
-     * @param string $useCaseName
-     * @param string $requestClassName
-     */
-    public function assignRequestClass($useCaseName, $requestClassName)
-    {
-        $this->getUseCaseConfiguration($useCaseName)->setRequestClassName($requestClassName);
-    }
-
-    /**
-     * Assigns a Use Case Input Processor to given Use Case.
-     *
-     * @param string $useCaseName
-     * @param string $processorName
-     * @param array  $options
-     */
-    public function assignInputProcessor($useCaseName, $processorName, array $options = array())
-    {
-        $this->getUseCaseConfiguration($useCaseName)->setInputProcessorName($processorName);
-        $this->getUseCaseConfiguration($useCaseName)->setInputProcessorOptions($options);
-    }
-
-    /**
-     * Assigns a Use Case Response Processor to given Use Case.
-     *
-     * @param string $useCaseName
-     * @param string $processorName
-     * @param array  $options
-     */
-    public function assignResponseProcessor($useCaseName, $processorName, array $options = array())
-    {
-        $this->getUseCaseConfiguration($useCaseName)->setResponseProcessorName($processorName);
-        $this->getUseCaseConfiguration($useCaseName)->setResponseProcessorOptions($options);
-    }
-
-    /**
      * @param string       $useCaseName
      * @param string|array $context
      *
@@ -168,52 +112,7 @@ class UseCaseExecutor
      */
     private function getUseCaseContext($useCaseName, $context)
     {
-        return $this->contextResolver->resolveContext($context ?: $this->getUseCaseConfiguration($useCaseName));
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return UseCaseInterface
-     * @throws UseCaseNotFoundException
-     */
-    private function getUseCase($name)
-    {
-        try {
-            return $this->useCaseContainer->get($name);
-        } catch (ItemNotFoundException $e) {
-            throw new UseCaseNotFoundException(sprintf('Use case "%s" not found.', $name));
-        }
-    }
-
-    /**
-     * @param string $useCaseName
-     *
-     * @return object
-     * @throws RequestClassNotFoundException
-     */
-    private function createUseCaseRequest($useCaseName)
-    {
-        $requestClass = $this->getUseCaseConfiguration($useCaseName)->getRequestClassName();
-        if (class_exists($requestClass)) {
-            return new $requestClass;
-        } else {
-            throw new RequestClassNotFoundException(sprintf('Class "%s" not found.', $requestClass));
-        }
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return UseCaseConfiguration
-     */
-    private function getUseCaseConfiguration($name)
-    {
-        if (!array_key_exists($name, $this->useCaseConfigurations)) {
-            $this->useCaseConfigurations[$name] = new UseCaseConfiguration();
-        }
-
-        return $this->useCaseConfigurations[$name];
+        return $this->contextResolver->resolveContext($useCaseName, $context);
     }
 
     /**

@@ -2,13 +2,11 @@
 
 namespace Bamiz\UseCaseBundle\DependencyInjection;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Bamiz\UseCaseBundle\Annotation\InputProcessor as InputAnnotation;
 use Bamiz\UseCaseBundle\Annotation\ProcessorAnnotation;
-use Bamiz\UseCaseBundle\Annotation\ResponseProcessor;
 use Bamiz\UseCaseBundle\Annotation\UseCase as UseCaseAnnotation;
 use Bamiz\UseCaseBundle\Container\ReferenceAcceptingContainerInterface;
 use Bamiz\UseCaseBundle\UseCase\RequestResolver;
+use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -63,7 +61,7 @@ class UseCaseCompilerPass implements CompilerPassInterface
      */
     private function addUseCasesToContainer(ContainerBuilder $container)
     {
-        $executorDefinition = $container->findDefinition('bamiz_use_case.executor');
+        $resolverDefinition = $container->findDefinition('bamiz_use_case.context_resolver');
         $useCaseContainerDefinition = $container->findDefinition('bamiz_use_case.container.use_case');
         $services = $container->getDefinitions();
 
@@ -77,7 +75,9 @@ class UseCaseCompilerPass implements CompilerPassInterface
             try {
                 $annotations = $this->annotationReader->getClassAnnotations($useCaseReflection);
             } catch (\InvalidArgumentException $e) {
-                throw new \LogicException(sprintf('Could not load annotations for class %s: %s', $serviceClass, $e->getMessage()));
+                throw new \LogicException(
+                    sprintf('Could not load annotations for class %s: %s', $serviceClass, $e->getMessage())
+                );
             }
 
             foreach ($annotations as $annotation) {
@@ -85,7 +85,7 @@ class UseCaseCompilerPass implements CompilerPassInterface
                     $this->validateUseCase($useCaseReflection);
                     $this->validateAnnotations($annotations, $serviceClass);
                     $this->registerUseCase(
-                        $id, $serviceClass, $annotation, $annotations, $executorDefinition, $useCaseContainerDefinition
+                        $id, $serviceClass, $annotations, $resolverDefinition, $useCaseContainerDefinition
                     );
                 }
             }
@@ -149,11 +149,9 @@ class UseCaseCompilerPass implements CompilerPassInterface
         $defaultContextName = $containerBuilder->getParameter('bamiz_use_case.default_context');
         $contexts = (array)$containerBuilder->getParameter('bamiz_use_case.contexts');
 
-        $resolverDefinition->addMethodCall('setDefaultContextName', [$defaultContextName]);
-        foreach ($contexts as $name => $context) {
-            $input = isset($context['input']) ? $context['input'] : null;
-            $response = isset($context['response']) ? $context['response'] : null;
-            $resolverDefinition->addMethodCall('addContextDefinition', [$name, $input, $response]);
+        $resolverDefinition->addMethodCall('setDefaultContextName', [$defaultContextName, []]);
+        foreach ($contexts as $name => $contextConfiguration) {
+            $resolverDefinition->addMethodCall('addContextDefinition', [$name, $contextConfiguration]);
         }
     }
 
@@ -174,50 +172,54 @@ class UseCaseCompilerPass implements CompilerPassInterface
 
     /**
      * @param array  $annotations
-     * @param string $useCaseClassName
+     * @param string $serviceClass
      *
      * @throws \InvalidArgumentException
      */
-    private function validateAnnotations($annotations, $useCaseClassName)
+    private function validateAnnotations($annotations, $serviceClass)
     {
         $useCaseAnnotationCount = 0;
-        $processorAnnotationCount = 0;
         foreach ($annotations as $annotation) {
             if ($annotation instanceof UseCaseAnnotation) {
                 $useCaseAnnotationCount++;
             }
-            if ($annotation instanceof ProcessorAnnotation) {
-                $processorAnnotationCount++;
-            }
         }
         
-        if ($useCaseAnnotationCount > 1 && $processorAnnotationCount > 0) {
+        if ($useCaseAnnotationCount > 1) {
             throw new \InvalidArgumentException(sprintf(
-                'It is not possible to use @InputProcessor or @ResponseProcessor annotations while registering ' .
-                'class %s as more than one Use Case. Please configure the Use Case contexts using parameters ' .
-                'in the respective @UseCase annotations.'
-            , $useCaseClassName));
+                'It is not possible for a class to be more than one Use Case. ' .
+                'Please remove the excessive @UseCase annotations from class %s',
+                $serviceClass
+            ));
         }
     }
 
     /**
      * @param string            $serviceId
      * @param string            $serviceClass
-     * @param UseCaseAnnotation $useCaseAnnotation
      * @param array             $annotations
-     * @param Definition        $executorDefinition
+     * @param Definition        $resolverDefinition
      * @param Definition        $containerDefinition
      *
      * @throws \Bamiz\UseCaseBundle\UseCase\RequestClassNotFoundException
      */
-    private function registerUseCase($serviceId, $serviceClass, $useCaseAnnotation, $annotations, $executorDefinition, $containerDefinition)
+    private function registerUseCase($serviceId, $serviceClass, $annotations, $resolverDefinition, $containerDefinition)
     {
-        $useCaseName = $useCaseAnnotation->getName() ?: $this->fqnToUseCaseName($serviceClass);
+        $configuration = [
+            'request_class' => $this->requestResolver->resolve($serviceClass)
+        ];
 
-        $this->addUseCaseToUseCaseContainer($containerDefinition, $useCaseName, $serviceId);
-        $this->assignInputProcessorToUseCase($executorDefinition, $useCaseName, $useCaseAnnotation, $annotations);
-        $this->assignResponseProcessorToUseCase($executorDefinition, $useCaseName, $useCaseAnnotation, $annotations);
-        $this->resolveUseCaseRequestClassName($executorDefinition, $useCaseName, $serviceClass);
+        foreach ($annotations as $annotation) {
+            if ($annotation instanceof UseCaseAnnotation) {
+                $configuration['use_case'] = $annotation->getName() ?: $this->fqnToUseCaseName($serviceClass);
+            }
+            if ($annotation instanceof ProcessorAnnotation) {
+                $configuration[$annotation->getType()][$annotation->getName()] = $annotation->getOptions();
+            }
+        }
+
+        $this->addUseCaseToUseCaseContainer($containerDefinition, $configuration['use_case'], $serviceId);
+        $resolverDefinition->addMethodCall('addUseCaseConfiguration', [$configuration]);
     }
 
     /**
@@ -258,68 +260,5 @@ class UseCaseCompilerPass implements CompilerPassInterface
         } else {
             $containerDefinition->addMethodCall('set', [$useCaseName, new Reference($serviceId)]);
         }
-    }
-
-    /**
-     * @param Definition        $executorDefinition
-     * @param string            $useCaseName
-     * @param UseCaseAnnotation $useCaseAnnotation
-     * @param array             $annotations
-     *
-     * @throws \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
-     */
-    private function assignInputProcessorToUseCase($executorDefinition, $useCaseName, $useCaseAnnotation, $annotations)
-    {
-        $useCaseConfig = $useCaseAnnotation->getConfiguration();
-        foreach ($annotations as $annotation) {
-            if ($annotation instanceof InputAnnotation) {
-                $useCaseConfig->addInputProcessor($annotation->getName(), $annotation->getOptions());
-            }
-        }
-
-        if ($useCaseConfig->getInputProcessorName()) {
-            $executorDefinition->addMethodCall(
-                'assignInputProcessor',
-                [$useCaseName, $useCaseConfig->getInputProcessorName(), $useCaseConfig->getInputProcessorOptions()]
-            );
-        }
-    }
-
-    /**
-     * @param Definition        $executorDefinition
-     * @param string            $useCaseName
-     * @param UseCaseAnnotation $useCaseAnnotations
-     * @param array             $annotations
-     *
-     * @throws \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
-     */
-    private function assignResponseProcessorToUseCase($executorDefinition, $useCaseName, $useCaseAnnotations, $annotations)
-    {
-        $useCaseConfig = $useCaseAnnotations->getConfiguration();
-        foreach ($annotations as $annotation) {
-            if ($annotation instanceof ResponseProcessor) {
-                $useCaseConfig->addResponseProcessor($annotation->getName(), $annotation->getOptions());
-            }
-        }
-
-        if ($useCaseConfig->getResponseProcessorName()) {
-            $executorDefinition->addMethodCall(
-                'assignResponseProcessor',
-                [$useCaseName, $useCaseConfig->getResponseProcessorName(), $useCaseConfig->getResponseProcessorOptions()]
-            );
-        }
-    }
-
-    /**
-     * @param Definition $executorDefinition
-     * @param string     $useCaseName
-     * @param string     $useCaseClassName
-     *
-     * @throws \Bamiz\UseCaseBundle\UseCase\RequestClassNotFoundException
-     */
-    private function resolveUseCaseRequestClassName($executorDefinition, $useCaseName, $useCaseClassName)
-    {
-        $requestClassName = $this->requestResolver->resolve($useCaseClassName);
-        $executorDefinition->addMethodCall('assignRequestClass', [$useCaseName, $requestClassName]);
     }
 }

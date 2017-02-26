@@ -25,13 +25,15 @@ services:
     bamiz_use_case.executor:
         class: "%bamiz_use_case.executor.class%"
         arguments:
-            - "@bamiz_use_case.container.use_case"
             - "@bamiz_use_case.context_resolver"
             - "@bamiz_use_case.actor_recognizer.composite"
 
     bamiz_use_case.context_resolver:
         class: "%bamiz_use_case.context_resolver.class%"
-        arguments: ["@bamiz_use_case.container.input_processor", "@bamiz_use_case.container.response_processor"]
+        arguments:
+            - "@bamiz_use_case.container.use_case"
+            - "@bamiz_use_case.container.input_processor"
+            - "@bamiz_use_case.container.response_processor"
 
     bamiz_use_case.container.use_case:
         class: "%bamiz_use_case.container.use_case.class%"

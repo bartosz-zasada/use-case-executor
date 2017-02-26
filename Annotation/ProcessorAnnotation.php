@@ -15,17 +15,16 @@ abstract class ProcessorAnnotation
     protected $options;
 
     /**
-     * @var string
-     */
-    protected $type;
-
-    /**
      * @param array $data
+     *
+     * @throws \InvalidArgumentException
      */
     public function __construct(array $data)
     {
         if (!isset($data['value'])) {
-            throw new \InvalidArgumentException(sprintf('%s Processor name must be specified.', $this->type));
+            throw new \InvalidArgumentException(
+                sprintf('%s Processor name must be specified.', ucfirst($this->getType()))
+            );
         }
 
         $this->name = $data['value'];
@@ -48,4 +47,9 @@ abstract class ProcessorAnnotation
     {
         return $this->options;
     }
+
+    /**
+     * @return string
+     */
+    abstract public function getType();
 }

@@ -6,6 +6,8 @@ use Bamiz\UseCaseBundle\Container\ContainerInterface;
 use Bamiz\UseCaseBundle\Container\ItemNotFoundException;
 use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
 use Bamiz\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
+use Bamiz\UseCaseBundle\UseCase\RequestClassNotFoundException;
+use Bamiz\UseCaseBundle\UseCase\UseCaseInterface;
 
 /**
  * Creates the context for the Use Case execution.
@@ -23,6 +25,11 @@ class UseCaseContextResolver
     /**
      * @var ContainerInterface
      */
+    private $useCaseContainer;
+
+    /**
+     * @var ContainerInterface
+     */
     private $inputProcessorContainer;
 
     /**
@@ -36,30 +43,27 @@ class UseCaseContextResolver
     private $configurations = [];
 
     /**
+     * @var UseCaseConfiguration[]
+     */
+    private $useCaseSpecificConfigurations = [];
+
+    /**
+     * @param ContainerInterface $useCaseContainer
      * @param ContainerInterface $inputProcessorContainer
      * @param ContainerInterface $responseProcessorContainer
      */
-    public function __construct(ContainerInterface $inputProcessorContainer, ContainerInterface $responseProcessorContainer)
+    public function __construct(
+        ContainerInterface $useCaseContainer,
+        ContainerInterface $inputProcessorContainer,
+        ContainerInterface $responseProcessorContainer
+    )
     {
+        $this->useCaseContainer = $useCaseContainer;
         $this->inputProcessorContainer = $inputProcessorContainer;
         $this->responseProcessorContainer = $responseProcessorContainer;
+
         $this->configurations[$this->defaultContextName] = new UseCaseConfiguration([
             'input' => self::DEFAULT_INPUT_PROCESSOR, 'response' => self::DEFAULT_RESPONSE_PROCESSOR
-        ]);
-    }
-
-    /**
-     * Saves a named context configuration. Both Input Processor and Response Processor configurations
-     * are optional and will fall back to default if not specified.
-     *
-     * @param string            $contextName
-     * @param string|array|null $inputProcessor name or configuration
-     * @param string|array|null $responseProcessor name or configuration
-     */
-    public function addContextDefinition($contextName, $inputProcessor = null, $responseProcessor = null)
-    {
-        $this->configurations[$contextName] = new UseCaseConfiguration([
-            'input' => $inputProcessor, 'response' => $responseProcessor
         ]);
     }
 
@@ -73,32 +77,62 @@ class UseCaseContextResolver
      *   the Input and Response processor options will be merged with the respective default options. The processors
      *   themselves will fall back to default if not specified.
      *
-     * @param string|array|UseCaseConfiguration $contextConfiguration
+     * @param string                            $useCaseName
+     * @param string|array|UseCaseConfiguration $customConfiguration
      *
      * @return UseCaseContext
+     * @throws InputProcessorNotFoundException
      * @throws InvalidConfigurationException
+     * @throws ResponseProcessorNotFoundException
+     * @throws UseCaseNotFoundException
      */
-    public function resolveContext($contextConfiguration)
+    public function resolveContext($useCaseName, $customConfiguration = [])
     {
         $defaultConfig = $this->getDefaultConfiguration();
-        $config = $this->resolveConfiguration($contextConfiguration);
+        $config = $this->resolveConfiguration($useCaseName, $customConfiguration);
 
-        if (!is_string($contextConfiguration)) {
-            $this->mergeOptionsWithDefaultConfig($config, $defaultConfig);
-        }
-
+        $useCaseRequest = $config->getUseCaseRequestClass();
         $inputProcessorName = $config->getInputProcessorName() ?: $defaultConfig->getInputProcessorName();
         $inputProcessorOptions = $config->getInputProcessorOptions() ?: $defaultConfig->getInputProcessorOptions();
         $responseProcessorName = $config->getResponseProcessorName() ?: $defaultConfig->getResponseProcessorName();
         $responseProcessorOptions = $config->getResponseProcessorOptions() ?: $defaultConfig->getResponseProcessorOptions();
 
         $context = new UseCaseContext();
+        $context->setUseCase($this->getUseCase($useCaseName));
+        $context->setUseCaseRequest($this->createUseCaseRequest($useCaseRequest));
         $context->setInputProcessor($this->getInputProcessor($inputProcessorName));
         $context->setResponseProcessor($this->getResponseProcessor($responseProcessorName));
         $context->setInputProcessorOptions($inputProcessorOptions);
         $context->setResponseProcessorOptions($responseProcessorOptions);
 
         return $context;
+    }
+
+    /**
+     * @param array|UseCaseSpecificConfiguration $configuration
+     *
+     * @throws InvalidConfigurationException
+     */
+    public function addUseCaseConfiguration($configuration)
+    {
+        if (is_array($configuration)) {
+            $configuration = new UseCaseSpecificConfiguration($configuration);
+        }
+        $this->useCaseSpecificConfigurations[$configuration->getUseCaseName()] = $configuration;
+    }
+
+    /**
+     * Saves a named context configuration. Both Input Processor and Response Processor configurations
+     * are optional and will fall back to default if not specified.
+     *
+     * @param string $contextName
+     * @param array  $configuration
+     *
+     * @throws InvalidConfigurationException
+     */
+    public function addContextDefinition($contextName, array $configuration = [])
+    {
+        $this->configurations[$contextName] = new UseCaseConfiguration($configuration);
     }
 
     /**
@@ -123,13 +157,31 @@ class UseCaseContextResolver
     }
 
     /**
+     * @param string $useCaseName
+     *
+     * @return UseCaseInterface
+     * @throws UseCaseNotFoundException
+     */
+    private function getUseCase($useCaseName)
+    {
+        try {
+            /** @noinspection PhpIncompatibleReturnTypeInspection until php introduces generics */
+            return $this->useCaseContainer->get($useCaseName);
+        } catch (ItemNotFoundException $e) {
+            throw new UseCaseNotFoundException(sprintf('Use case "%s" not found.', $useCaseName));
+        }
+    }
+
+    /**
      * @param string $inputProcessorName
      *
      * @return InputProcessorInterface
+     * @throws InputProcessorNotFoundException
      */
     private function getInputProcessor($inputProcessorName)
     {
         try {
+            /** @noinspection PhpIncompatibleReturnTypeInspection until php introduces generics */
             return $this->inputProcessorContainer->get($inputProcessorName);
         } catch (ItemNotFoundException $e) {
             throw new InputProcessorNotFoundException(sprintf('Input processor "%s" not found.', $inputProcessorName));
@@ -140,10 +192,12 @@ class UseCaseContextResolver
      * @param string $responseProcessorName
      *
      * @return ResponseProcessorInterface
+     * @throws ResponseProcessorNotFoundException
      */
     private function getResponseProcessor($responseProcessorName)
     {
         try {
+            /** @noinspection PhpIncompatibleReturnTypeInspection until php introduces generics */
             return $this->responseProcessorContainer->get($responseProcessorName);
         } catch (ItemNotFoundException $e) {
             throw new ResponseProcessorNotFoundException(sprintf('Response processor "%s" not found.', $responseProcessorName));
@@ -151,36 +205,32 @@ class UseCaseContextResolver
     }
 
     /**
-     * @param string|array|UseCaseConfiguration $contextConfiguration
+     * @param string                            $useCaseName
+     * @param string|array|UseCaseConfiguration $customConfiguration
      *
-     * @return UseCaseConfiguration
+     * @return UseCaseSpecificConfiguration
      * @throws InvalidConfigurationException
+     * @throws UseCaseNotFoundException
      */
-    private function resolveConfiguration($contextConfiguration)
+    private function resolveConfiguration($useCaseName, $customConfiguration)
     {
-        if (is_string($contextConfiguration)) {
-            return $this->getConfigurationByName($contextConfiguration);
-        } elseif (is_array($contextConfiguration)) {
-            return new UseCaseConfiguration($contextConfiguration);
-        } elseif ($contextConfiguration instanceof UseCaseConfiguration) {
-            return clone $contextConfiguration;
+        if (is_string($customConfiguration)) {
+            $configuration = $this->getConfigurationByName($customConfiguration);
+        } elseif (is_array($customConfiguration)) {
+            $configuration = new UseCaseConfiguration($customConfiguration);
+        } elseif ($customConfiguration instanceof UseCaseConfiguration) {
+            $configuration = clone $customConfiguration;
         } else {
-            throw new \InvalidArgumentException();
+            throw new InvalidConfigurationException(
+                'A context configuration must be a string, an array, or an instance of UseCaseConfiguration.'
+            );
         }
-    }
 
-    /**
-     * @param UseCaseConfiguration $config
-     * @param UseCaseConfiguration $defaultConfig
-     */
-    private function mergeOptionsWithDefaultConfig($config, $defaultConfig)
-    {
-        $config->setInputProcessorOptions(
-            array_merge($defaultConfig->getInputProcessorOptions(), $config->getInputProcessorOptions())
-        );
-        $config->setResponseProcessorOptions(
-            array_merge($defaultConfig->getResponseProcessorOptions(), $config->getResponseProcessorOptions())
-        );
+        if (isset($this->useCaseSpecificConfigurations[$useCaseName])) {
+            return $this->useCaseSpecificConfigurations[$useCaseName]->merge($configuration);
+        } else {
+            throw new UseCaseNotFoundException(sprintf('Use case "%s" has not been registered.', $useCaseName));
+        }
     }
 
     /**
@@ -197,6 +247,21 @@ class UseCaseContextResolver
             throw new InvalidConfigurationException(
                 sprintf('Context "%s" has not been defined.', $contextConfiguration)
             );
+        }
+    }
+
+    /**
+     * @param string $useCaseRequestClass
+     *
+     * @return object
+     * @throws RequestClassNotFoundException
+     */
+    private function createUseCaseRequest($useCaseRequestClass)
+    {
+        if (class_exists($useCaseRequestClass)) {
+            return new $useCaseRequestClass;
+        } else {
+            throw new RequestClassNotFoundException(sprintf('Class "%s" not found.', $useCaseRequestClass));
         }
     }
 }

@@ -8,5 +8,11 @@ namespace Bamiz\UseCaseBundle\Annotation;
  */
 class InputProcessor extends ProcessorAnnotation
 {
-    protected $type = 'Input';
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return 'input';
+    }
 }

@@ -43,7 +43,7 @@ class UseCaseConfiguration
      *
      * @throws InvalidConfigurationException
      */
-    public function __construct($data = [])
+    public function __construct(array $data = [])
     {
         if (isset($data['input'])) {
             $this->setConfiguration('input', $data['input']);
@@ -183,10 +183,54 @@ class UseCaseConfiguration
     }
 
     /**
+     * Merges given use case configuration into this one, creating a new configuration object as a result.
+     * The new configuration contains Input and Response Processors from both configurations.
+     * In case the same Processor appears in both configurations, options from the new configuration are used.
+     *
+     * @param UseCaseConfiguration $configurationToMerge
+     *
+     * @return $this
+     */
+    public function merge(UseCaseConfiguration $configurationToMerge)
+    {
+        $thisArray = $this->toArray();
+        $toMergeArray = $configurationToMerge->toArray();
+        $newArray = $thisArray;
+
+        foreach (['input', 'response'] as $item) {
+            if (isset($newArray[$item])) {
+                unset($newArray[$item]);
+            }
+
+            $processorArray = array_merge(
+                empty($thisArray[$item]) ? [] : $this->normalizeProcessorConfiguration($thisArray[$item]),
+                empty($toMergeArray[$item]) ? [] : $this->normalizeProcessorConfiguration($toMergeArray[$item])
+            );
+
+            if (!empty($processorArray)) {
+                $newArray[$item] = $this->simplifyProcessorConfiguration($processorArray);
+            }
+        }
+
+        return new static($newArray);
+    }
+
+    /**
+     * Overrides the Input and/or Response Processors with the ones from given configuration.
+     *
+     * @param UseCaseConfiguration $newConfiguration
+     *
+     * @return UseCaseConfiguration
+     */
+    public function override(UseCaseConfiguration $newConfiguration)
+    {
+        return new static(array_merge($this->toArray(), $newConfiguration->toArray()));
+    }
+
+    /**
      * @param string       $field
      * @param string|array $configuration
      *
-     * @return string
      * @throws InvalidConfigurationException
      */
     private function setConfiguration($field, $configuration)
@@ -199,6 +243,50 @@ class UseCaseConfiguration
         } else {
             $this->$nameField = 'composite';
             $this->$optionsField = $configuration;
+        }
+    }
+
+    /**
+     * @return array
+     */
+    protected function toArray()
+    {
+        $array = [];
+        if (!empty($this->inputProcessorName)) {
+            $array['input'] = $this->inputProcessorOptions ?: $this->inputProcessorName;
+        }
+        if (!empty($this->responseProcessorName)) {
+            $array['response'] = $this->responseProcessorOptions ?: $this->responseProcessorName;
+        }
+
+        return $array;
+    }
+
+    /**
+     * @param string|array $processorConfiguration
+     *
+     * @return array
+     */
+    protected function normalizeProcessorConfiguration($processorConfiguration)
+    {
+        if (is_string($processorConfiguration)) {
+            return [$processorConfiguration => []];
+        } else {
+            return $processorConfiguration;
+        }
+    }
+
+    /**
+     * @param array $processorConfiguration
+     *
+     * @return string|array
+     */
+    protected function simplifyProcessorConfiguration(array $processorConfiguration)
+    {
+        if (count($processorConfiguration) === 1 && array_values($processorConfiguration)[0] === []) {
+            return array_keys($processorConfiguration)[0];
+        } else {
+            return $processorConfiguration;
         }
     }
 }

@@ -22,6 +22,8 @@ class UseCase
 
     /**
      * @param array $data
+     *
+     * @throws \InvalidArgumentException
      */
     public function __construct(array $data)
     {

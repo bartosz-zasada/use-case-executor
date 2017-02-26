@@ -8,5 +8,11 @@ namespace Bamiz\UseCaseBundle\Annotation;
  */
 class ResponseProcessor extends ProcessorAnnotation
 {
-    protected $type = 'Response';
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return 'response';
+    }
 }

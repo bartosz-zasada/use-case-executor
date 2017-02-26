@@ -4,12 +4,10 @@ namespace spec\Bamiz\UseCaseBundle\Execution;
 
 use Bamiz\UseCaseBundle\Actor\ActorInterface;
 use Bamiz\UseCaseBundle\Actor\CompositeActorRecognizer;
-use Bamiz\UseCaseBundle\Container\ContainerInterface;
 use Bamiz\UseCaseBundle\Execution\ActorCannotExecuteUseCaseException;
 use Bamiz\UseCaseBundle\Execution\UseCaseConfiguration;
 use Bamiz\UseCaseBundle\Execution\UseCaseContext;
 use Bamiz\UseCaseBundle\Execution\UseCaseContextResolver;
-use Bamiz\UseCaseBundle\Container\ItemNotFoundException;
 use Bamiz\UseCaseBundle\Exception\AlternativeCourseException;
 use Bamiz\UseCaseBundle\Execution\UseCaseNotFoundException;
 use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
@@ -27,7 +25,6 @@ use Bamiz\UseCaseBundle\Execution\UseCaseExecutor;
 class UseCaseExecutorSpec extends ObjectBehavior
 {
     public function let(
-        ContainerInterface $useCaseContainer,
         UseCaseInterface $useCase,
         InputProcessorInterface $defaultInputProcessor,
         ResponseProcessorInterface $defaultResponseProcessor,
@@ -36,13 +33,14 @@ class UseCaseExecutorSpec extends ObjectBehavior
         CompositeActorRecognizer $actorRecognizer,
         ActorInterface $actor
     ) {
-        $this->beConstructedWith($useCaseContainer, $contextResolver, $actorRecognizer);
-        $useCaseContainer->get('use_case')->willReturn($useCase);
+        $this->beConstructedWith($contextResolver, $actorRecognizer);
 
         $actorRecognizer->recognizeActor()->willReturn($actor);
         $actor->canExecute('use_case')->willReturn(true);
 
-        $contextResolver->resolveContext(Argument::any())->willReturn($context);
+        $contextResolver->resolveContext('use_case', Argument::any())->willReturn($context);
+        $context->getUseCase()->willReturn($useCase);
+        $context->getUseCaseRequest()->willReturn(new SomeUseCaseRequest());
         $context->getInputProcessor()->willReturn($defaultInputProcessor);
         $context->getInputProcessorOptions()->willReturn([]);
         $context->getResponseProcessor()->willReturn($defaultResponseProcessor);
@@ -62,26 +60,25 @@ class UseCaseExecutorSpec extends ObjectBehavior
     }
 
     public function it_throws_exception_when_no_use_case_by_given_name_exists(
-        ContainerInterface $useCaseContainer,
+        UseCaseContextResolver $contextResolver,
         ActorInterface $actor
     )
     {
         $actor->canExecute('no_such_use_case_here')->willReturn(true);
 
-        $useCaseContainer->get('no_such_use_case_here')->willThrow(new ItemNotFoundException());
-        $this->shouldThrow(new UseCaseNotFoundException('Use case "no_such_use_case_here" not found.'))
-            ->duringExecute('no_such_use_case_here', []);
+        $exception = new UseCaseNotFoundException('Use case "no_such_use_case_here" not found.');
+        $contextResolver->resolveContext('no_such_use_case_here', [])->willThrow($exception);
+
+        $this->shouldThrow($exception)->duringExecute('no_such_use_case_here', []);
     }
 
     public function it_does_not_use_actor_recognizer_if_actor_is_set(
-        ContainerInterface $useCaseContainer,
         UseCaseContextResolver $contextResolver,
         CompositeActorRecognizer $actorRecognizer,
         ActorInterface $actor
     )
     {
-        $this->beConstructedWith($useCaseContainer, $contextResolver, $actorRecognizer, $actor);
-        $this->assignRequestClass('use_case', \stdClass::class);
+        $this->beConstructedWith($contextResolver, $actorRecognizer, $actor);
 
         $actorRecognizer->recognizeActor()->shouldNotBeCalled();
 
@@ -89,18 +86,18 @@ class UseCaseExecutorSpec extends ObjectBehavior
     }
 
     public function it_creates_request_instance_based_on_use_case_configuration_and_passes_it_into_input_processor(
-        InputProcessorInterface $inputProcessor, UseCaseInterface $useCase, UseCaseContext $context,
+        InputProcessorInterface $inputProcessor,
+        UseCaseInterface $useCase,
+        UseCaseContext $context,
         UseCaseContextResolver $contextResolver
     )
     {
         $inputProcessorOptions = ['name' => 'contact_form', 'style' => 'blue'];
         $context->getInputProcessor()->willReturn($inputProcessor);
         $context->getInputProcessorOptions()->willReturn($inputProcessorOptions);
-        $contextResolver->resolveContext(Argument::which('getInputProcessorOptions', $inputProcessorOptions))
+        $contextResolver->resolveContext('', Argument::which('getInputProcessorOptions', $inputProcessorOptions))
             ->willReturn($context);
 
-        $this->assignInputProcessor('use_case', 'form', $inputProcessorOptions);
-        $this->assignRequestClass('use_case', SomeUseCaseRequest::class);
         $context->getInputProcessor()->willReturn($inputProcessor);
 
         $input = ['foo' => 'bar', 'key' => 'value'];
@@ -119,11 +116,9 @@ class UseCaseExecutorSpec extends ObjectBehavior
         $responseProcessorOptions = ['template' => 'HelloBundle:hello:index.html.twig'];
         $context->getResponseProcessor()->willReturn($responseProcessor);
         $context->getResponseProcessorOptions()->willReturn($responseProcessorOptions);
-        $contextResolver->resolveContext(Argument::which('getResponseProcessorOptions', $responseProcessorOptions))
+        $contextResolver->resolveContext('', Argument::which('getResponseProcessorOptions', $responseProcessorOptions))
             ->willReturn($context);
 
-        $this->assignResponseProcessor('use_case', 'twig', $responseProcessorOptions);
-        $this->assignRequestClass('use_case', SomeUseCaseRequest::class);
         $responseProcessor->processResponse($useCaseResponse, $responseProcessorOptions)->willReturn($output);
 
         $context->getResponseProcessor()->willReturn($responseProcessor);
@@ -132,27 +127,29 @@ class UseCaseExecutorSpec extends ObjectBehavior
     }
 
     public function it_uses_context_resolver_to_fetch_the_use_case_context(
-        UseCaseInterface $useCase, UseCaseContextResolver $contextResolver, UseCaseContext $context, \stdClass $response,
-        InputProcessorInterface $formInputProcessor, ResponseProcessorInterface $twigResponseProcessor, HttpResponse $httpResponse
+        UseCaseInterface $useCase,
+        UseCaseContextResolver $contextResolver,
+        UseCaseContext $context,
+        \stdClass $response,
+        InputProcessorInterface $formInputProcessor,
+        ResponseProcessorInterface $twigResponseProcessor,
+        HttpResponse $httpResponse
     )
     {
-        $this->assignRequestClass('use_case', SomeUseCaseRequest::class);
-        $this->assignInputProcessor('use_case', 'form');
-        $this->assignResponseProcessor('use_case', 'twig');
+        $config = new UseCaseConfiguration([
+            'input'    => 'form',
+            'response' => 'twig'
+        ]);
+        $contextResolver->resolveContext('use_case', $config)->willReturn($context);
 
-        $config = new UseCaseConfiguration();
-        $config->setRequestClassName(SomeUseCaseRequest::class);
-        $config->setInputProcessorName('form');
-        $config->setResponseProcessorName('twig');
-
-        $contextResolver->resolveContext($config)->willReturn($context);
         $context->getInputProcessor()->willReturn($formInputProcessor);
         $context->getInputProcessorOptions()->willReturn(['name' => 'default_form']);
         $context->getResponseProcessor()->willReturn($twigResponseProcessor);
         $context->getResponseProcessorOptions()->willReturn(['template' => 'AppBundle:hello:default.html.twig']);
 
         $input = ['form_data' => ['name' => 'John'], 'user_id' => 665, 'action' => 'update'];
-        $formInputProcessor->initializeRequest(Argument::type(SomeUseCaseRequest::class), $input, ['name' => 'default_form'])
+        $formInputProcessor
+            ->initializeRequest(Argument::type(SomeUseCaseRequest::class), $input, ['name' => 'default_form'])
             ->shouldBeCalled();
         $useCase->execute(Argument::type(SomeUseCaseRequest::class))->willReturn($response);
         $twigResponseProcessor->processResponse($response, ['template' => 'AppBundle:hello:default.html.twig'])
@@ -162,64 +159,44 @@ class UseCaseExecutorSpec extends ObjectBehavior
     }
 
     public function it_uses_the_registered_response_processor_to_handle_errors(
-        UseCaseContextResolver $contextResolver, UseCaseContext $context, ResponseProcessorInterface $responseProcessor,
-        HttpResponse $httpResponse, UseCaseInterface $useCase
+        UseCaseContextResolver $contextResolver,
+        UseCaseContext $context,
+        ResponseProcessorInterface $responseProcessor,
+        HttpResponse $httpResponse,
+        UseCaseInterface $useCase
     )
     {
-        $this->assignRequestClass('use_case', \stdClass::class);
         $responseProcessorOptions = [
             'template' => 'HelloBundle:hello:index.html.twig',
             'error_template' => 'HelloBundle:goodbye:epic_fail.html.twig'
         ];
         $context->getResponseProcessor()->willReturn($responseProcessor);
         $context->getResponseProcessorOptions()->willReturn($responseProcessorOptions);
-        $contextResolver->resolveContext(Argument::which('getResponseProcessorOptions', $responseProcessorOptions))
+        $contextResolver
+            ->resolveContext('', Argument::which('getResponseProcessorOptions', $responseProcessorOptions))
             ->willReturn($context);
 
         $exception = new AlternativeCourseException();
         $useCase->execute(Argument::any())->willThrow($exception);
         $responseProcessor->handleException($exception, $responseProcessorOptions)->willReturn($httpResponse);
 
-        $this->assignResponseProcessor('use_case', 'twig', $responseProcessorOptions);
         $this->execute('use_case', [])->shouldReturn($httpResponse);
     }
 
-    public function it_resolves_context_with_empty_configuration_if_no_configuration_exists_for_use_case(
-        UseCaseContextResolver $contextResolver, UseCaseContext $context
-    )
-    {
-        $this->assignRequestClass('use_case', \stdClass::class);
-        $defaultEmptyConfiguration = new UseCaseConfiguration();
-        $defaultEmptyConfiguration->setRequestClassName(\stdClass::class);
-
-        $contextResolver->resolveContext($defaultEmptyConfiguration)->shouldBeCalled();
-        $contextResolver->resolveContext($defaultEmptyConfiguration)->willReturn($context);
-
-        $this->execute('use_case', []);
-    }
-
-    public function it_resolves_context_by_context_name(UseCaseContextResolver $contextResolver, UseCaseContext $context)
-    {
-        $this->assignRequestClass('use_case', \stdClass::class);
-        $contextResolver->resolveContext('test_context')->shouldBeCalled();
-        $contextResolver->resolveContext('test_context')->willReturn($context);
-        $this->execute('use_case', ['foo' => 'bar'], 'test_context');
-    }
-
     public function it_passes_the_input_to_the_response_processor_if_its_input_aware(
-        UseCaseContextResolver $contextResolver, UseCaseContext $newContext,
-        InputProcessorInterface $inputProcessor, InputAwareResponseProcessor $inputAwareResponseProcessor
+        UseCaseContextResolver $contextResolver,
+        UseCaseContext $context,
+        InputProcessorInterface $inputProcessor,
+        InputAwareResponseProcessor $inputAwareResponseProcessor
     )
     {
-        $this->assignRequestClass('use_case', \stdClass::class);
         $input = ['some' => 'input', 'for' => 'the use case'];
+        $contextResolver->resolveContext('use_case', 'input_aware')->willReturn($context);
 
-        $contextResolver->resolveContext('input_aware')->willReturn($newContext);
-
-        $newContext->getInputProcessor()->willReturn($inputProcessor);
-        $newContext->getInputProcessorOptions()->willReturn([]);
-        $newContext->getResponseProcessor()->willReturn($inputAwareResponseProcessor);
-        $newContext->getResponseProcessorOptions()->willReturn([]);
+        $context->getInputProcessor()->willReturn($inputProcessor);
+        $context->getInputProcessorOptions()->willReturn([]);
+        $context->getResponseProcessor()->willReturn($inputAwareResponseProcessor);
+        $context->getResponseProcessorOptions()->willReturn([]);
 
         $inputAwareResponseProcessor->setInput($input)->shouldBeCalled();
         $inputAwareResponseProcessor->processResponse(Argument::any(), [])->shouldBeCalled();

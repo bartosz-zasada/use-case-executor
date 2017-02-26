@@ -20,7 +20,7 @@
         "symfony/options-resolver": "~2.3|~3.0"
     },
     "require-dev": {
-        "phpspec/phpspec": "~2.0"
+        "phpspec/phpspec": "^3.0"
     },
     "autoload": {
         "psr-4" : {
