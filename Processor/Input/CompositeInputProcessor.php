@@ -27,7 +27,7 @@ class CompositeInputProcessor implements InputProcessorInterface
      * @param mixed  $input   Any object that contains input data.
      * @param array  $options An associative array where keys are processor names and values are arrays of options.
      */
-    public function initializeRequest($request, $input, $options = [])
+    public function initializeRequest($request, $input, array $options = [])
     {
         if (count($options) == 0) {
             throw new EmptyCompositeProcessorException('No Input Processors have been configured.');

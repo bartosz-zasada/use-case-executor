@@ -12,7 +12,7 @@ class IdentityResponseProcessor implements ResponseProcessorInterface
      *
      * @return object
      */
-    public function processResponse($response, $options = [])
+    public function processResponse($response, array $options = [])
     {
         return $response;
     }
@@ -25,7 +25,7 @@ class IdentityResponseProcessor implements ResponseProcessorInterface
      *
      * @throws \Exception
      */
-    public function handleException(\Exception $exception, $options = [])
+    public function handleException(\Exception $exception, array $options = [])
     {
         throw $exception;
     }

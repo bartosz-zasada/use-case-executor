@@ -61,8 +61,6 @@ class UseCaseCompilerPass implements CompilerPassInterface
      */
     private function addUseCasesToContainer(ContainerBuilder $container)
     {
-        $resolverDefinition = $container->findDefinition('bamiz_use_case.context_resolver');
-        $useCaseContainerDefinition = $container->findDefinition('bamiz_use_case.container.use_case');
         $services = $container->getDefinitions();
 
         foreach ($services as $id => $serviceDefinition) {
@@ -72,22 +70,12 @@ class UseCaseCompilerPass implements CompilerPassInterface
             }
 
             $useCaseReflection = new \ReflectionClass($serviceClass);
-            try {
-                $annotations = $this->annotationReader->getClassAnnotations($useCaseReflection);
-            } catch (\InvalidArgumentException $e) {
-                throw new \LogicException(
-                    sprintf('Could not load annotations for class %s: %s', $serviceClass, $e->getMessage())
-                );
-            }
+            $useCaseTags = $serviceDefinition->getTag('use_case');
 
-            foreach ($annotations as $annotation) {
-                if ($annotation instanceof UseCaseAnnotation) {
-                    $this->validateUseCase($useCaseReflection);
-                    $this->validateAnnotations($annotations, $serviceClass);
-                    $this->registerUseCase(
-                        $id, $serviceClass, $annotations, $resolverDefinition, $useCaseContainerDefinition
-                    );
-                }
+            if ($this->validateTags($useCaseTags, $serviceClass)) {
+                $this->registerTaggedUseCase($container, $useCaseReflection, $id, $serviceClass, $useCaseTags[0]);
+            } else {
+                $this->registerAnnotatedUseCase($container, $useCaseReflection, $id, $serviceClass);
             }
         }
     }
@@ -197,22 +185,27 @@ class UseCaseCompilerPass implements CompilerPassInterface
     /**
      * @param string            $serviceId
      * @param string            $serviceClass
+     * @param string            $useCaseName
      * @param array             $annotations
      * @param Definition        $resolverDefinition
      * @param Definition        $containerDefinition
      *
      * @throws \Bamiz\UseCaseBundle\UseCase\RequestClassNotFoundException
      */
-    private function registerUseCase($serviceId, $serviceClass, $annotations, $resolverDefinition, $containerDefinition)
-    {
+    private function registerUseCase(
+        $serviceId,
+        $serviceClass,
+        $useCaseName,
+        $annotations,
+        $resolverDefinition,
+        $containerDefinition
+    ) {
         $configuration = [
+            'use_case'      => $useCaseName ?: $this->fqnToUseCaseName($serviceClass),
             'request_class' => $this->requestResolver->resolve($serviceClass)
         ];
 
         foreach ($annotations as $annotation) {
-            if ($annotation instanceof UseCaseAnnotation) {
-                $configuration['use_case'] = $annotation->getName() ?: $this->fqnToUseCaseName($serviceClass);
-            }
             if ($annotation instanceof ProcessorAnnotation) {
                 $configuration[$annotation->getType()][$annotation->getName()] = $annotation->getOptions();
             }
@@ -259,6 +252,91 @@ class UseCaseCompilerPass implements CompilerPassInterface
             $containerDefinition->addMethodCall('set', [$useCaseName, $serviceId]);
         } else {
             $containerDefinition->addMethodCall('set', [$useCaseName, new Reference($serviceId)]);
+        }
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     * @param \ReflectionClass $useCaseReflection
+     * @param string           $id
+     * @param string           $serviceClass
+     * @param array            $useCaseTag
+     */
+    private function registerTaggedUseCase(
+        ContainerBuilder $container,
+        $useCaseReflection,
+        $id,
+        $serviceClass,
+        array $useCaseTag
+    ) {
+        $resolverDefinition = $container->findDefinition('bamiz_use_case.context_resolver');
+        $useCaseContainerDefinition = $container->findDefinition('bamiz_use_case.container.use_case');
+
+        $this->validateUseCase($useCaseReflection);
+        $this->registerUseCase(
+            $id,
+            $serviceClass,
+            isset($useCaseTag['alias']) ? $useCaseTag['alias'] : '',
+            [],
+            $resolverDefinition,
+            $useCaseContainerDefinition
+        );
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     * @param \ReflectionClass $useCaseReflection
+     * @param string           $id
+     * @param string           $serviceClass
+     */
+    private function registerAnnotatedUseCase(ContainerBuilder $container, $useCaseReflection, $id, $serviceClass)
+    {
+        $resolverDefinition = $container->findDefinition('bamiz_use_case.context_resolver');
+        $useCaseContainerDefinition = $container->findDefinition('bamiz_use_case.container.use_case');
+
+        try {
+            $annotations = $this->annotationReader->getClassAnnotations($useCaseReflection);
+        } catch (\InvalidArgumentException $e) {
+            throw new \LogicException(
+                sprintf('Could not load annotations for class %s: %s', $serviceClass, $e->getMessage())
+            );
+        }
+
+        foreach ($annotations as $annotation) {
+            if ($annotation instanceof UseCaseAnnotation) {
+                $this->validateUseCase($useCaseReflection);
+                $this->validateAnnotations($annotations, $serviceClass);
+                $this->registerUseCase(
+                    $id,
+                    $serviceClass,
+                    $annotation->getName(),
+                    $annotations,
+                    $resolverDefinition,
+                    $useCaseContainerDefinition
+                );
+            }
+        }
+    }
+
+    /**
+     * @param array  $useCaseTags
+     * @param string $serviceClass
+     *
+     * @return bool
+     */
+    private function validateTags($useCaseTags, $serviceClass)
+    {
+        switch (count($useCaseTags)) {
+            case 1:
+                return true;
+            case 0:
+                return false;
+            default:
+                throw new \InvalidArgumentException(sprintf(
+                    'It is not possible for a class to be more than one Use Case. ' .
+                    'Please remove the excessive use_case tags from class %s',
+                    $serviceClass
+                ));
         }
     }
 }

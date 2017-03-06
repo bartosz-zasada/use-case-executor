@@ -6,7 +6,7 @@ use Bamiz\UseCaseBundle\Processor\Exception\UnsupportedInputException;
 use Symfony\Component\HttpFoundation;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
-class JsonInputProcessor extends ArrayInputProcessor implements InputProcessorInterface
+class JsonInputProcessor extends ArrayInputProcessor
 {
     /**
      * @var DecoderInterface
@@ -32,8 +32,9 @@ class JsonInputProcessor extends ArrayInputProcessor implements InputProcessorIn
      * @param array                  $options An array of configuration options.
      *
      * @return object the Use Case Request object is returned for testability purposes.
+     * @throws UnsupportedInputException
      */
-    public function initializeRequest($request, $input, $options = [])
+    public function initializeRequest($request, $input, array $options = [])
     {
         if (!($input instanceof HttpFoundation\Request)) {
             throw new UnsupportedInputException('JSON', HttpFoundation\Request::class, $input);

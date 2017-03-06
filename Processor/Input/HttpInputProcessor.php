@@ -6,7 +6,7 @@ use Bamiz\UseCaseBundle\Processor\Exception\UnsupportedInputException;
 use Symfony\Component\HttpFoundation;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class HttpInputProcessor extends ArrayInputProcessor implements InputProcessorInterface
+class HttpInputProcessor extends ArrayInputProcessor
 {
     const DEFAULT_ORDER = 'GPFCSHA';
 
@@ -31,7 +31,7 @@ class HttpInputProcessor extends ArrayInputProcessor implements InputProcessorIn
      *
      * @return object the Use Case Request object is returned for testability purposes.
      */
-    public function initializeRequest($request, $input, $options = [])
+    public function initializeRequest($request, $input, array $options = [])
     {
         $this->validateInput($input);
         $options = $this->validateOptions($options);
@@ -47,7 +47,8 @@ class HttpInputProcessor extends ArrayInputProcessor implements InputProcessorIn
         ];
 
         $requestData = [];
-        for ($i = 0; $i < strlen($options['order']); $i++) {
+        $strlen = strlen($options['order']);
+        for ($i = 0; $i < $strlen; $i++) {
             $key = $options['order'][$i];
             $dataToAdd = $this->getFilteredDataFromRequest($inputData, $key, $options);
             $requestData = array_merge($requestData, $dataToAdd);

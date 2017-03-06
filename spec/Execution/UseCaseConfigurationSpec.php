@@ -66,43 +66,6 @@ class UseCaseConfigurationSpec extends ObjectBehavior
         ]);
     }
 
-    public function it_adds_the_input_processor_to_empty_configuration()
-    {
-        $this->beConstructedWith([]);
-        $this->addInputProcessor('some_input', ['option' => 'value']);
-        $this->getInputProcessorName()->shouldBe('some_input');
-        $this->getInputProcessorOptions()->shouldBe(['option' => 'value']);
-    }
-
-    public function it_adds_the_response_processor_to_empty_configuration()
-    {
-        $this->beConstructedWith([]);
-        $this->addResponseProcessor('some_response', ['option' => 'weird value']);
-        $this->getResponseProcessorName()->shouldBe('some_response');
-        $this->getResponseProcessorOptions()->shouldBe(['option' => 'weird value']);
-    }
-
-    public function it_changes_processors_to_composite_if_another_processor_is_added_to_an_existing_one()
-    {
-        $this->beConstructedWith(['input' => 'form', 'response' => 'json']);
-        $this->getInputProcessorName()->shouldBe('form');
-        $this->getResponseProcessorName()->shouldBe('json');
-
-        $this->addInputProcessor('http');
-        $this->addResponseProcessor('twig', ['template' => 'index.html.twig']);
-        $this->getInputProcessorName()->shouldBe('composite');
-        $this->getInputProcessorOptions()->shouldBe(['form' => [], 'http' => []]);
-        $this->getResponseProcessorName()->shouldBe('composite');
-        $this->getResponseProcessorOptions()->shouldBe(['json' => [], 'twig' => ['template' => 'index.html.twig']]);
-
-        $this->addInputProcessor('cli', ['format' => 'ansi']);
-        $this->addResponseProcessor('dump');
-        $this->getInputProcessorName()->shouldBe('composite');
-        $this->getInputProcessorOptions()->shouldBe(['form' => [], 'http' => [], 'cli' => ['format' => 'ansi']]);
-        $this->getResponseProcessorName()->shouldBe('composite');
-        $this->getResponseProcessorOptions()->shouldBe(['json' => [], 'twig' => ['template' => 'index.html.twig'], 'dump' => []]);
-    }
-
     public function it_merges_another_configuration_into_itself()
     {
         $mergedConfiguration = new UseCaseConfiguration(['response' => 'twig']);

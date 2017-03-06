@@ -12,7 +12,7 @@ interface ResponseProcessorInterface
      *
      * @return mixed
      */
-    public function processResponse($response, $options = []);
+    public function processResponse($response, array $options = []);
 
     /**
      * When an exception is thrown during Use Case execution, this method is invoked. It should return an Output
@@ -24,5 +24,5 @@ interface ResponseProcessorInterface
      *
      * @return mixed
      */
-    public function handleException(\Exception $exception, $options = []);
+    public function handleException(\Exception $exception, array $options = []);
 }

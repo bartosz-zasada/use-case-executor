@@ -12,5 +12,5 @@ interface InputProcessorInterface
      * @param mixed  $input   Any object that contains input data.
      * @param array  $options An array of configuration options to the Input Processor.
      */
-    public function initializeRequest($request, $input, $options = []);
+    public function initializeRequest($request, $input, array $options = []);
 }

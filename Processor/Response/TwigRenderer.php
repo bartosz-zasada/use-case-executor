@@ -46,7 +46,7 @@ class TwigRenderer implements ResponseProcessorInterface
      * @return HttpFoundation\Response
      * @throws \Exception
      */
-    public function processResponse($response, $options = [])
+    public function processResponse($response, array $options = [])
     {
         if (!isset($options['template'])) {
             throw new \InvalidArgumentException(sprintf('Missing required option "%s"', 'template'));
@@ -83,7 +83,7 @@ class TwigRenderer implements ResponseProcessorInterface
      * @return mixed
      * @throws \Exception
      */
-    public function handleException(\Exception $exception, $options = [])
+    public function handleException(\Exception $exception, array $options = [])
     {
         try {
             throw $exception;

@@ -9,7 +9,6 @@ use Bamiz\UseCaseBundle\Annotation\ResponseProcessor as ResponseAnnotation;
 use Bamiz\UseCaseBundle\Container\Container;
 use Bamiz\UseCaseBundle\Container\ReferenceAcceptingContainerInterface;
 use Bamiz\UseCaseBundle\DependencyInjection\InvalidUseCase;
-use Bamiz\UseCaseBundle\Execution\UseCaseConfiguration;
 use Bamiz\UseCaseBundle\UseCase\RequestResolver;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
@@ -102,8 +101,92 @@ class UseCaseCompilerPassSpec extends ObjectBehavior
         $this->process($containerBuilder);
     }
 
+    public function it_registers_tagged_use_cases(
+        ContainerBuilder $containerBuilder,
+        Definition $useCaseContainerDefinition,
+        RequestResolver $requestResolver,
+        Definition $contextResolverDefinition,
+        Definition $useCaseDefinition1,
+        Definition $useCaseDefinition2
+    )
+    {
+        $useCaseDefinition1->getClass()->willReturn(UseCase1::class);
+        $useCaseDefinition1->getTag('use_case')->willReturn([['alias' => 'perform_magic']]);
+        $useCaseDefinition2->getClass()->willReturn(UseCase2::class);
+        $useCaseDefinition2->getTag('use_case')->willReturn([['alias' => 'summon_unicorns']]);
+
+        $containerBuilder->getDefinitions()->willReturn([
+            'use_case_1' => $useCaseDefinition1,
+            'use_case_2' => $useCaseDefinition2
+        ]);
+
+        $requestResolver->resolve(UseCase1::class)->willReturn(\stdClass::class);
+        $requestResolver->resolve(UseCase2::class)->willReturn(\stdClass::class);
+
+        $configurationArray1 = [
+            'use_case'      => 'perform_magic',
+            'request_class' => \stdClass::class
+        ];
+        $configurationArray2 = [
+            'use_case'      => 'summon_unicorns',
+            'request_class' => \stdClass::class
+        ];
+
+        $useCaseContainerDefinition->addMethodCall('set', ['perform_magic', new Reference('use_case_1')])->shouldBeCalled();
+        $useCaseContainerDefinition->addMethodCall('set', ['summon_unicorns', new Reference('use_case_2')])->shouldBeCalled();
+
+        $contextResolverDefinition->addMethodCall('addUseCaseConfiguration', [$configurationArray1])->shouldBeCalled();
+        $contextResolverDefinition->addMethodCall('addUseCaseConfiguration', [$configurationArray2])->shouldBeCalled();
+
+        $this->process($containerBuilder);
+    }
+
+    public function it_ignores_annotations_of_tagged_use_cases(
+        ContainerBuilder $containerBuilder,
+        Definition $useCaseContainerDefinition,
+        RequestResolver $requestResolver,
+        Definition $contextResolverDefinition,
+        Definition $useCaseDefinition,
+        AnnotationReader $annotationReader
+    )
+    {
+        $useCaseDefinition->getClass()->willReturn(UseCase1::class);
+        $useCaseDefinition->getTag('use_case')->willReturn([['alias' => 'perform_magic']]);
+
+        $containerBuilder->getDefinitions()->willReturn(['use_case_1' => $useCaseDefinition]);
+        $requestResolver->resolve(UseCase1::class)->willReturn(\stdClass::class);
+
+        $configurationArray = [
+            'use_case'      => 'perform_magic',
+            'request_class' => \stdClass::class
+        ];
+        $useCaseContainerDefinition->addMethodCall('set', ['perform_magic', new Reference('use_case_1')])->shouldBeCalled();
+        $contextResolverDefinition->addMethodCall('addUseCaseConfiguration', [$configurationArray])->shouldBeCalled();
+
+        $annotationReader->getClassAnnotations(Argument::any())->shouldNotBeCalled();
+
+        $this->process($containerBuilder);
+    }
+
+    public function it_throws_an_exception_if_more_than_one_use_case_tag_is_found(
+        ContainerBuilder $containerBuilder,
+        Definition $useCaseDefinition
+    )
+    {
+        $useCaseDefinition->getClass()->willReturn(UseCase1::class);
+        $useCaseDefinition->getTag('use_case')->willReturn([
+            ['alias' => 'perform_magic'],
+            ['alias' => 'perform_more_magic']
+        ]);
+
+        $containerBuilder->getDefinitions()->willReturn(['use_case_1' => $useCaseDefinition]);
+
+        $this->shouldThrow(\InvalidArgumentException::class)->duringProcess($containerBuilder);
+    }
+
     public function it_adds_input_processors_to_container_under_an_alias(
-        ContainerBuilder $containerBuilder, Definition $inputProcessorContainerDefinition
+        ContainerBuilder $containerBuilder,
+        Definition $inputProcessorContainerDefinition
     )
     {
         $inputProcessorsWithTags = [
@@ -123,7 +206,8 @@ class UseCaseCompilerPassSpec extends ObjectBehavior
     }
 
     public function it_adds_response_processors_to_container_under_an_alias(
-        ContainerBuilder $containerBuilder, Definition $responseProcessorContainerDefinition
+        ContainerBuilder $containerBuilder,
+        Definition $responseProcessorContainerDefinition
     )
     {
         $responseProcessorsWithTags = [
@@ -210,19 +294,31 @@ class UseCaseCompilerPassSpec extends ObjectBehavior
         ContainerBuilder $containerBuilder,
         AnnotationReader $annotationReader,
         Definition $useCaseContainerDefinition,
-        Definition $contextResolverDefinition
+        Definition $contextResolverDefinition,
+        Definition $taggedDefinition
     )
     {
+        $taggedDefinition->getClass()->willReturn(UseCase3::class);
+        $taggedDefinition->getTag('use_case')->willReturn([['name' => 'use_case']]);
+
         $emptyAnnotation = new UseCaseAnnotation([]);
         $containerBuilder->getDefinitions()->willReturn([
-            'my_app.use_case' => new Definition(UseCase1::class),
+            'my_app.use_case'   => new Definition(UseCase1::class),
             'my_app.use_case_2' => new Definition(DoImportantStuff::class),
+            'my_app.use_case_3' => $taggedDefinition
         ]);
         $annotationReader->getClassAnnotations(new \ReflectionClass(UseCase1::class))->willReturn([$emptyAnnotation]);
         $annotationReader->getClassAnnotations(new \ReflectionClass(DoImportantStuff::class))->willReturn([$emptyAnnotation]);
 
-        $useCaseContainerDefinition->addMethodCall('set', ['use_case_1', new Reference('my_app.use_case')])->shouldBeCalled();
-        $useCaseContainerDefinition->addMethodCall('set', ['do_important_stuff', new Reference('my_app.use_case_2')])->shouldBeCalled();
+        $useCaseContainerDefinition
+            ->addMethodCall('set', ['use_case_1', new Reference('my_app.use_case')])
+            ->shouldBeCalled();
+        $useCaseContainerDefinition
+            ->addMethodCall('set', ['do_important_stuff', new Reference('my_app.use_case_2')])
+            ->shouldBeCalled();
+        $useCaseContainerDefinition
+            ->addMethodCall('set', ['use_case_3', new Reference('my_app.use_case_3')])
+            ->shouldBeCalled();
 
         $contextResolverDefinition
             ->addMethodCall('addUseCaseConfiguration', [['request_class' => \stdClass::class, 'use_case' => 'use_case_1']])
@@ -230,18 +326,22 @@ class UseCaseCompilerPassSpec extends ObjectBehavior
         $contextResolverDefinition
             ->addMethodCall('addUseCaseConfiguration', [['request_class' => \stdClass::class, 'use_case' => 'do_important_stuff']])
             ->shouldBeCalled();
+        $contextResolverDefinition
+            ->addMethodCall('addUseCaseConfiguration', [['request_class' => \stdClass::class, 'use_case' => 'use_case_3']])
+            ->shouldBeCalled();
 
         $this->process($containerBuilder);
     }
 
     public function it_adds_context_definitions_to_the_resolver(
-        ContainerBuilder $containerBuilder, Definition $contextResolverDefinition
+        ContainerBuilder $containerBuilder,
+        Definition $contextResolverDefinition
     )
     {
         $contexts = [
             'my_default_context' => ['response' => 'json'],
-            'my_other_context' => ['input' => 'array'],
-            'web' => ['input' => ['http' => ['accept' => 'json']], 'response' => 'twig']
+            'my_other_context'   => ['input' => 'array'],
+            'web'                => ['input' => ['http' => ['accept' => 'json']], 'response' => 'twig']
         ];
         $containerBuilder->getParameter('bamiz_use_case.default_context')->willReturn('my_default_context');
         $containerBuilder->getParameter('bamiz_use_case.contexts')->willReturn($contexts);
@@ -269,12 +369,10 @@ class UseCaseCompilerPassSpec extends ObjectBehavior
         AnnotationReader $annotationReader,
         Definition $contextResolverDefinition,
         Definition $useCaseContainerDefinition,
-        UseCaseAnnotation $useCaseAnnotation,
-        UseCaseConfiguration $useCaseConfiguration
+        UseCaseAnnotation $useCaseAnnotation
     )
     {
         $useCaseAnnotation->getName()->willReturn('use_case');
-        $useCaseAnnotation->getConfiguration()->willReturn($useCaseConfiguration);
         $inputAnnotation1 = new InputAnnotation(['value' => 'http', 'order' => 'GPC']);
         $inputAnnotation2 = new InputAnnotation(['value' => 'json']);
         $responseAnnotation1 = new ResponseAnnotation(['value' => 'twig', 'template' => 'index.html.twig']);

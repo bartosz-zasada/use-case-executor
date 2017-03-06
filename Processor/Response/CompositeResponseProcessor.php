@@ -8,11 +8,6 @@ use Bamiz\UseCaseBundle\Processor\Exception\EmptyCompositeProcessorException;
 class CompositeResponseProcessor implements ResponseProcessorInterface
 {
     /**
-     * @var array
-     */
-    private $responseProcessors;
-
-    /**
      * @var ContainerInterface
      */
     private $responseProcessorContainer;
@@ -34,7 +29,7 @@ class CompositeResponseProcessor implements ResponseProcessorInterface
      *
      * @return mixed
      */
-    public function processResponse($response, $options = [])
+    public function processResponse($response, array $options = [])
     {
         $this->throwIfNoProcessorsAdded($options);
 
@@ -59,8 +54,9 @@ class CompositeResponseProcessor implements ResponseProcessorInterface
      * @param array      $options
      *
      * @return mixed
+     * @throws \Exception
      */
-    public function handleException(\Exception $exception, $options = [])
+    public function handleException(\Exception $exception, array $options = [])
     {
         $this->throwIfNoProcessorsAdded($options);
 
@@ -92,17 +88,13 @@ class CompositeResponseProcessor implements ResponseProcessorInterface
     }
 
     /**
-     * @param ResponseProcessorInterface $responseProcessor
-     * @param array                      $options
+     * @param array $options
+     *
+     * @throws EmptyCompositeProcessorException
      */
-    public function addResponseProcessor(ResponseProcessorInterface $responseProcessor, $options = [])
+    private function throwIfNoProcessorsAdded(array $options)
     {
-        $this->responseProcessors[] = [$responseProcessor, $options];
-    }
-
-    private function throwIfNoProcessorsAdded($options)
-    {
-        if (count($options) == 0) {
+        if (count($options) === 0) {
             throw new EmptyCompositeProcessorException('No Response Processors have been added.');
         }
     }

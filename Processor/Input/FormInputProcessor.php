@@ -35,7 +35,7 @@ class FormInputProcessor implements InputProcessorInterface
      *
      * @return object the Use Case Request object is returned for testability purposes.
      */
-    public function initializeRequest($request, $input, $options = [])
+    public function initializeRequest($request, $input, array $options = [])
     {
         $options = $this->validateOptions($options);
 

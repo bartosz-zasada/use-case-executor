@@ -34,7 +34,7 @@ class JsonRenderer implements ResponseProcessorInterface
      *
      * @return JsonResponse
      */
-    public function processResponse($response, $options = [])
+    public function processResponse($response, array $options = [])
     {
         $array = (array)$response;
         if (isset($options['append_on_success'])) {
@@ -60,7 +60,7 @@ class JsonRenderer implements ResponseProcessorInterface
      * @return JsonResponse
      * @throws \Exception
      */
-    public function handleException(\Exception $exception, $options = [])
+    public function handleException(\Exception $exception, array $options = [])
     {
         if (!isset($options['http_status_code'])) {
             $options['http_status_code'] = self::DEFAULT_HTTP_STATUS_CODE;
