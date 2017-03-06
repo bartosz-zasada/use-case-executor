@@ -36,7 +36,7 @@ format for Processor options.
     )
     ```
 
-The YAML and array structure has been changed in the same way. See chapter (Use Case Contexts)[docs/03-use-case-contexts.md]
+The YAML and array structure has been changed in the same way. See chapter (Use Case Contexts)[doc/03-use-case-contexts.md]
 for details.
 
 * `Lamudi\UseCaseBundle\Exception\UseCaseException` has been renamed to 

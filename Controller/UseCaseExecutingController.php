@@ -39,11 +39,9 @@ class UseCaseExecutingController extends Controller
             $useCaseExecutor = $useCaseExecutor->asActor($this->actorName);
         }
 
-        if (isset($arguments[0])) {
-            return $useCaseExecutor->execute($useCaseName, $arguments[0]);
-        } else {
-            return $useCaseExecutor->execute($useCaseName);
-        }
+        $executorArguments = array_merge([$useCaseName], $arguments);
+
+        return call_user_func_array([$useCaseExecutor, 'execute'], $executorArguments);
     }
 
     /**

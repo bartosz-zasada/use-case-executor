@@ -33,18 +33,33 @@ class UseCaseExecutingControllerSpec extends ObjectBehavior
         $this->doSomething();
     }
 
+    public function it_uses_magic_to_execute_use_cases_with_input(
+        ContainerInterface $symfonyContainer,
+        UseCaseExecutor $useCaseExecutor
+    )
+    {
+        $input = ['foo' => 'bar'];
+        $symfonyContainer->get('bamiz_use_case.executor')->willReturn($useCaseExecutor);
+        $this->setContainer($symfonyContainer);
+
+        $useCaseExecutor->execute('do_something', $input)->shouldBeCalled();
+
+        $this->doSomething($input);
+    }
+
     public function it_uses_magic_to_execute_use_cases_as_actors(
         ContainerInterface $symfonyContainer,
         UseCaseExecutor $useCaseExecutor,
         UseCaseExecutor $useCaseAsActorExecutor
     )
     {
+        $input = [];
         $symfonyContainer->get('bamiz_use_case.executor')->willReturn($useCaseExecutor);
         $this->setContainer($symfonyContainer);
 
         $useCaseExecutor->asActor('jedi')->willReturn($useCaseAsActorExecutor);
-        $useCaseAsActorExecutor->execute('use_the_force', ['input' => 'http', 'response' => 'json'])->shouldBeCalled();
+        $useCaseAsActorExecutor->execute('use_the_force', $input, ['input' => 'http', 'response' => 'json'])->shouldBeCalled();
 
-        $this->jedi->useTheForce(['input' => 'http', 'response' => 'json']);
+        $this->jedi->useTheForce($input, ['input' => 'http', 'response' => 'json']);
     }
 }
