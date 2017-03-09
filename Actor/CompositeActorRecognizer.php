@@ -10,12 +10,14 @@ class CompositeActorRecognizer implements ActorRecognizerInterface
     private $actorRecognizers = [];
 
     /**
+     * @param object $useCaseRequest
+     *
      * @return ActorInterface
      */
-    public function recognizeActor()
+    public function recognizeActor($useCaseRequest)
     {
         if (count($this->actorRecognizers) > 0) {
-            $ableActors = $this->findAbleActors();
+            $ableActors = $this->findAbleActors($useCaseRequest);
             return $this->createActor($ableActors);
         }
 
@@ -24,14 +26,15 @@ class CompositeActorRecognizer implements ActorRecognizerInterface
 
     /**
      * @param string $actorName
+     * @param object $useCaseRequest
      *
      * @return ActorInterface
      * @throws ActorNotFoundException
      */
-    public function findActorByName($actorName)
+    public function recognizeActorByName($actorName, $useCaseRequest)
     {
         foreach ($this->actorRecognizers as $actorRecognizer) {
-            $actor = $actorRecognizer->recognizeActor();
+            $actor = $actorRecognizer->recognizeActor($useCaseRequest);
             if ($actorName === $actor->getName()) {
                 return $actor;
             }
@@ -49,13 +52,15 @@ class CompositeActorRecognizer implements ActorRecognizerInterface
     }
 
     /**
+     * @param object $useCaseRequest
+     *
      * @return ActorInterface[]
      */
-    private function findAbleActors()
+    private function findAbleActors($useCaseRequest)
     {
         $ableActors = [];
         foreach ($this->actorRecognizers as $actorRecognizer) {
-            $actor = $actorRecognizer->recognizeActor();
+            $actor = $actorRecognizer->recognizeActor($useCaseRequest);
             if (!($actor instanceof UnableActor)) {
                 $ableActors[] = $actor;
             }

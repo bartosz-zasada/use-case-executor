@@ -26,6 +26,7 @@ class UseCaseExecutorSpec extends ObjectBehavior
 {
     public function let(
         UseCaseInterface $useCase,
+        SomeUseCaseRequest $useCaseRequest,
         InputProcessorInterface $defaultInputProcessor,
         ResponseProcessorInterface $defaultResponseProcessor,
         UseCaseContextResolver $contextResolver,
@@ -35,12 +36,12 @@ class UseCaseExecutorSpec extends ObjectBehavior
     ) {
         $this->beConstructedWith($contextResolver, $actorRecognizer);
 
-        $actorRecognizer->recognizeActor()->willReturn($actor);
+        $actorRecognizer->recognizeActor($useCaseRequest)->willReturn($actor);
         $actor->canExecute('use_case')->willReturn(true);
 
         $contextResolver->resolveContext('use_case', Argument::any())->willReturn($context);
         $context->getUseCase()->willReturn($useCase);
-        $context->getUseCaseRequest()->willReturn(new SomeUseCaseRequest());
+        $context->getUseCaseRequest()->willReturn($useCaseRequest);
         $context->getInputProcessor()->willReturn($defaultInputProcessor);
         $context->getInputProcessorOptions()->willReturn([]);
         $context->getResponseProcessor()->willReturn($defaultResponseProcessor);
@@ -54,9 +55,9 @@ class UseCaseExecutorSpec extends ObjectBehavior
 
     public function it_throws_an_exception_if_actor_cannot_execute_use_case(ActorInterface $actor)
     {
-        $actor->canExecute('cant_be_done')->willReturn(false);
+        $actor->canExecute('use_case')->willReturn(false);
 
-        $this->shouldThrow(ActorCannotExecuteUseCaseException::class)->duringExecute('cant_be_done');
+        $this->shouldThrow(ActorCannotExecuteUseCaseException::class)->duringExecute('use_case');
     }
 
     public function it_throws_exception_when_no_use_case_by_given_name_exists(
@@ -108,9 +109,13 @@ class UseCaseExecutorSpec extends ObjectBehavior
             ->shouldHaveBeenCalled();
     }
 
-    public function it_registers_response_processor_for_use_case_with_options(
-        UseCaseContextResolver $contextResolver, UseCaseContext $context, ResponseProcessorInterface $responseProcessor,
-        UseCaseInterface $useCase, \stdClass $useCaseResponse, HttpResponse $output
+    public function it_processes_the_use_case_response(
+        UseCaseContextResolver $contextResolver,
+        UseCaseContext $context,
+        ResponseProcessorInterface $responseProcessor,
+        UseCaseInterface $useCase,
+        \stdClass $useCaseResponse,
+        HttpResponse $output
     )
     {
         $responseProcessorOptions = ['template' => 'HelloBundle:hello:index.html.twig'];
@@ -202,16 +207,6 @@ class UseCaseExecutorSpec extends ObjectBehavior
         $inputAwareResponseProcessor->processResponse(Argument::any(), [])->shouldBeCalled();
 
         $this->execute('use_case', $input, 'input_aware');
-    }
-
-    public function it_recognizes_actor_by_name_and_returns_a_new_instance_of_use_case_executor(
-        CompositeActorRecognizer $actorRecognizer, ActorInterface $somethingDoer
-    )
-    {
-        $actorRecognizer->findActorByName('something_doer')->willReturn($somethingDoer);
-
-        $this->asActor('something_doer')->shouldHaveType(UseCaseExecutor::class);
-        $this->asActor('something_doer')->getActor()->shouldBe($somethingDoer);
     }
 }
 

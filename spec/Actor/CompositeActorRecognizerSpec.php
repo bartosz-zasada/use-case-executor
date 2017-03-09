@@ -25,7 +25,8 @@ class CompositeActorRecognizerSpec extends ObjectBehavior
 
     public function it_returns_the_omnipotent_actor_if_no_recognizers_have_been_added()
     {
-        $this->recognizeActor()->shouldHaveType(OmnipotentActor::class);
+        $useCaseRequest = new \stdClass();
+        $this->recognizeActor($useCaseRequest)->shouldHaveType(OmnipotentActor::class);
     }
 
     public function it_returns_the_unable_actor_if_no_actors_have_been_recognized(
@@ -33,13 +34,14 @@ class CompositeActorRecognizerSpec extends ObjectBehavior
         ActorRecognizerInterface $recognizer2
     )
     {
-        $recognizer1->recognizeActor()->willReturn(new UnableActor());
-        $recognizer2->recognizeActor()->willReturn(new UnableActor());
+        $useCaseRequest = new \stdClass();
+        $recognizer1->recognizeActor($useCaseRequest)->willReturn(new UnableActor());
+        $recognizer2->recognizeActor($useCaseRequest)->willReturn(new UnableActor());
 
         $this->addActorRecognizer($recognizer1);
         $this->addActorRecognizer($recognizer2);
 
-        $this->recognizeActor()->shouldHaveType(UnableActor::class);
+        $this->recognizeActor($useCaseRequest)->shouldHaveType(UnableActor::class);
     }
 
     public function it_returns_the_recognized_actor_instance_if_only_one_is_recognized(
@@ -48,15 +50,16 @@ class CompositeActorRecognizerSpec extends ObjectBehavior
         ActorRecognizerInterface $recognizer3
     )
     {
-        $recognizer1->recognizeActor()->willReturn(new UnableActor());
-        $recognizer2->recognizeActor()->willReturn(new Jedi());
-        $recognizer3->recognizeActor()->willReturn(new UnableActor());
+        $useCaseRequest = new \stdClass();
+        $recognizer1->recognizeActor($useCaseRequest)->willReturn(new UnableActor());
+        $recognizer2->recognizeActor($useCaseRequest)->willReturn(new Jedi());
+        $recognizer3->recognizeActor($useCaseRequest)->willReturn(new UnableActor());
 
         $this->addActorRecognizer($recognizer1);
         $this->addActorRecognizer($recognizer2);
         $this->addActorRecognizer($recognizer3);
 
-        $this->recognizeActor()->shouldHaveType(Jedi::class);
+        $this->recognizeActor($useCaseRequest)->shouldHaveType(Jedi::class);
     }
 
     public function it_returns_the_composite_actor_if_many_actors_have_been_recognized(
@@ -65,18 +68,20 @@ class CompositeActorRecognizerSpec extends ObjectBehavior
         ActorRecognizerInterface $recognizer3
     )
     {
-        $recognizer1->recognizeActor()->willReturn(new CookieMonster());
-        $recognizer2->recognizeActor()->willReturn(new Jedi());
-        $recognizer3->recognizeActor()->willReturn(new UnableActor());
+        $useCaseRequest = new \stdClass();
+        $recognizer1->recognizeActor($useCaseRequest)->willReturn(new CookieMonster());
+        $recognizer2->recognizeActor($useCaseRequest)->willReturn(new Jedi());
+        $recognizer3->recognizeActor($useCaseRequest)->willReturn(new UnableActor());
 
         $this->addActorRecognizer($recognizer1);
         $this->addActorRecognizer($recognizer2);
         $this->addActorRecognizer($recognizer3);
 
-        $this->recognizeActor()->shouldHaveType(CompositeActor::class);
-        $this->recognizeActor()->canExecute('use the force')->shouldBe(true);
-        $this->recognizeActor()->canExecute('eat cookies')->shouldBe(true);
-        $this->recognizeActor()->canExecute('count to ten')->shouldBe(false);
+        $actor = $this->recognizeActor($useCaseRequest);
+        $actor->shouldHaveType(CompositeActor::class);
+        $actor->canExecute('use the force')->shouldBe(true);
+        $actor->canExecute('eat cookies')->shouldBe(true);
+        $actor->canExecute('count to ten')->shouldBe(false);
     }
 
     public function it_finds_registered_actors_by_name(
@@ -87,19 +92,20 @@ class CompositeActorRecognizerSpec extends ObjectBehavior
         $cookieMonster = new CookieMonster();
         $jedi = new Jedi();
 
-        $recognizer1->recognizeActor()->willReturn($cookieMonster);
-        $recognizer2->recognizeActor()->willReturn($jedi);
+        $useCaseRequest = new \stdClass();
+        $recognizer1->recognizeActor($useCaseRequest)->willReturn($cookieMonster);
+        $recognizer2->recognizeActor($useCaseRequest)->willReturn($jedi);
 
         $this->addActorRecognizer($recognizer1);
         $this->addActorRecognizer($recognizer2);
 
-        $this->findActorByName('jedi')->shouldBe($jedi);
-        $this->findActorByName('cookie monster')->shouldBe($cookieMonster);
+        $this->recognizeActorByName('jedi', $useCaseRequest)->shouldBe($jedi);
+        $this->recognizeActorByName('cookie monster', $useCaseRequest)->shouldBe($cookieMonster);
     }
 
     public function it_throws_an_exception_if_actor_cannot_be_found_by_name()
     {
-        $this->shouldThrow(ActorNotFoundException::class)->duringFindActorByName('no such actor here');
+        $this->shouldThrow(ActorNotFoundException::class)->duringRecognizeActorByName('no such actor here', null);
     }
 }
 

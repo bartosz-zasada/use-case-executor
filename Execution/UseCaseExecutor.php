@@ -2,8 +2,6 @@
 
 namespace Bamiz\UseCaseBundle\Execution;
 
-use Bamiz\UseCaseBundle\Actor\ActorInterface;
-use Bamiz\UseCaseBundle\Actor\ActorNotFoundException;
 use Bamiz\UseCaseBundle\Actor\CompositeActorRecognizer;
 use Bamiz\UseCaseBundle\Processor\Response\InputAwareResponseProcessor;
 use Bamiz\UseCaseBundle\UseCase\RequestClassNotFoundException;
@@ -21,24 +19,21 @@ class UseCaseExecutor
     private $actorRecognizer;
 
     /**
-     * @var ActorInterface|null
+     * @var string
      */
-    private $actor;
+    private $actorName;
 
     /**
      * @param UseCaseContextResolver   $contextResolver
      * @param CompositeActorRecognizer $actorRecognizer
-     * @param ActorInterface           $actor
      */
     public function __construct(
         UseCaseContextResolver $contextResolver,
-        CompositeActorRecognizer $actorRecognizer,
-        ActorInterface $actor = null
+        CompositeActorRecognizer $actorRecognizer
     )
     {
         $this->contextResolver = $contextResolver;
         $this->actorRecognizer = $actorRecognizer;
-        $this->actor = $actor;
     }
 
     /**
@@ -59,49 +54,38 @@ class UseCaseExecutor
      */
     public function execute($useCaseName, $input = null, $configuration = [])
     {
-        $this->checkIfActorCanExecuteUseCase($useCaseName);
-
         $context = $this->getUseCaseContext($useCaseName, $configuration);
 
         $useCase = $context->getUseCase();
         $request = $context->getUseCaseRequest();
         $inputProcessor = $context->getInputProcessor();
-        $inputProcessorOptions = $context->getInputProcessorOptions();
         $responseProcessor = $context->getResponseProcessor();
-        $responseProcessorOptions = $context->getResponseProcessorOptions();
 
         if ($responseProcessor instanceof InputAwareResponseProcessor) {
             $responseProcessor->setInput($input);
         }
 
+        $inputProcessor->initializeRequest($request, $input, $context->getInputProcessorOptions());
+        $this->checkIfActorCanExecuteUseCase($useCaseName, $request);
+
         try {
-            $inputProcessor->initializeRequest($request, $input, $inputProcessorOptions);
             $response = $useCase->execute($request);
-            return $responseProcessor->processResponse($response, $responseProcessorOptions);
         } catch (\Exception $exception) {
-            return $responseProcessor->handleException($exception, $responseProcessorOptions);
+            return $responseProcessor->handleException($exception, $context->getResponseProcessorOptions());
         }
+
+        return $responseProcessor->processResponse($response, $context->getResponseProcessorOptions());
     }
 
     /**
      * @param string $actorName
      *
      * @return UseCaseExecutor
-     * @throws ActorNotFoundException
      */
     public function asActor($actorName)
     {
-        $actor = $this->actorRecognizer->findActorByName($actorName);
-
-        return new UseCaseExecutor($this->contextResolver, $this->actorRecognizer, $actor);
-    }
-
-    /**
-     * @return ActorInterface|null
-     */
-    public function getActor()
-    {
-        return $this->actor;
+        $this->actorName = $actorName;
+        return $this;
     }
 
     /**
@@ -116,17 +100,16 @@ class UseCaseExecutor
     }
 
     /**
-     * @param $useCaseName
+     * @param string $useCaseName
+     * @param object $useCaseRequest
      *
      * @throws ActorCannotExecuteUseCaseException
      */
-    private function checkIfActorCanExecuteUseCase($useCaseName)
+    private function checkIfActorCanExecuteUseCase($useCaseName, $useCaseRequest)
     {
-        if ($this->actor === null) {
-            $this->actor = $this->actorRecognizer->recognizeActor();
-        }
+        $actor = $this->actorRecognizer->recognizeActor($useCaseRequest);
 
-        if (!$this->actor->canExecute($useCaseName)) {
+        if (!$actor->canExecute($useCaseName)) {
             throw new ActorCannotExecuteUseCaseException();
         }
     }

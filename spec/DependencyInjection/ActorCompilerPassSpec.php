@@ -87,9 +87,11 @@ class ActorCompilerPassSpec extends ObjectBehavior
 class ActorRecognizer implements ActorRecognizerInterface
 {
     /**
+     * @param object $useCaseRequest
+     *
      * @return ActorInterface
      */
-    public function recognizeActor()
+    public function recognizeActor($useCaseRequest)
     {
         return new OmnipotentActor();
     }
