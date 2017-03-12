@@ -1,14 +1,17 @@
 # Use Case Contexts
 In [the previous chapter](02-use-cases-in-symfony.md) we have created an **Input Processor** and a **Response Processor**, 
-and used them to provide a **Context** for the Use Case to be executed in.  It has been noted that the Use Case Layer must 
+and used them to provide a **Context** for the Use Case to be executed in. It has been noted that the Use Case Layer must 
 stay separated from the Application Layer in the way that the Use Cases, or any business logic, does not depend on the way 
 that Input or Output is delivered. This means that we can replace the Use Case Context at any time, and the behavior of 
 the application will stay intact. The most noteworthy benefit is the ability to test the application with functional tests. 
 These tests would focus on verifying the behavior without resorting to performing fragile assertions that base on the UI, 
 and it will be only necessary to change them when the business rules change, and nothing else.
 
-In the example from the previous chapter, we used an annotation to define the Use Case Context. The Use Case Bundle 
-provides several other means of configuring Contexts.
+In the example from the previous chapter, we used annotations to define the Use Case Context. While being very easy
+to use, annotations have a nasty side effect of coupling our business logic layer (Use Cases) with the application
+layer, as the details of the delivery mechanism are now present in the same file as the business logic.
+Fortunately, the Use Case Bundle provides several other means of configuring Contexts, which should be used instead
+of annotations if you want to keep everything truly separated.
 
 ## Default Context
 You can configure the default Context in config.yml:
@@ -44,14 +47,36 @@ bamiz_use_case:
     
 ```
 
-These settings will be used as a fallback in case the Input Processor, the Response Processor, or their options have 
+These settings will be used as a fallback in case the Input Processor or the Response Processor have 
 not been specified in any other way.
 
-If you have not specified the defaults in config.yml, the default Input Processor is ```array``` and the default 
-Response Processor is ```identity```.
+If you have not specified the defaults in config.yml, the default Input Processor is `array` and the default 
+Response Processor is `identity`.
 
 You can also specify multiple Input and Response Processors. To do that, simply add another entry like described above.
 If your Processor does not require any options, just put tilde next to the key:
+
+
+## Anonymous Contexts
+
+A Context can be defined ad hoc and passed as the third argument to the Executor's `execute()` method:
+
+```
+<?php
+$executor->execute('my_use_case', $input, ['input' => 'http', 'response' => 'json']);
+$executor->execute('my_use_case', $input, [
+    'input' => [
+        'http',
+        'form' => ['name' => 'AppBundle\Form\MyForm', 'data_field' => 'myFormData']
+    ],
+    'response' => [
+        'twig' => ['template' => 'MyBundle:default:index.html.twig']
+    ]
+]);
+```
+
+If Input or Response Processor is not specified, the default one is used.
+
 
 ```
 # app/config/config.yml
@@ -96,7 +121,7 @@ bamiz_use_case:
     
 ```
 
-It is only possible to use named Contexts in the ```execute()``` method of the Executor.
+It is only possible to use named Contexts in the `execute()` method of the Executor.
 
 ```
 <?php
@@ -120,65 +145,26 @@ bamiz_use_case:
 
 ```
 
-## Custom Contexts
+## Annotations
 
-A Use Case-specific Context can be defined specifically for one Use Case using the ```@UseCase``` annotation:
-
-```
-@UseCase(
-    "use_case_name",
-    input="http",
-    response="twig"
-)
-@UseCase(
-    "another_use_case_name",
-    input={
-        "http"={"priority"="GPC"}
-    },
-    response={
-        "twig"={"template"="MyBundle:default:index.html.twig"}
-    }
-)
-```
-It is possible to annotate a single Use Case class with multiple ```@UseCase``` annotations, thus configuring multiple 
-Use Cases implemented with the same class.
-
-You can also assign multiple Processors to a single Use Case:
+A Use Case-specific Context can be defined specifically for one Use Case using `@UseCase`, `@InputProcessor`, and
+`@ResponseProcessor` annotations:
 
 ```
-@UseCase(
-    "another_use_case_name",
-    input={
-        "my_input_processor"={"foo"="bar"},
-        "input_processor_without_options"
-    },
-    response={
-        "my_response_processor",
-        "another_response_processor"
-    }
-)
+@UseCase("use_case_name")
+@InputProcessor("http")
+@ResponseProcessor("twig")
 ```
 
-For details about how multiple Processors work together, see chapter 
-[Using multiple Input and Response Processors](05-using-multiple-input-and-response-processors.md)
-
-## Anonymous Contexts
-
-A Context can be defined ad hoc and passed as the third argument to the Executor's ```execute()``` method:
+If you want to pass additional options to any Processor, you can do this just by adding these options to the annotation.
 
 ```
-<?php
-$executor->execute('my_use_case', $input, ['input' => 'http', 'response' => 'json']);
-$executor->execute('my_use_case', $input, [
-    'input' => [
-        'http',
-        'form' => ['name' => 'AppBundle\Form\MyForm', 'data_field' => 'myFormData']
-    ],
-    'response' => [
-        'twig' => ['template' => 'MyBundle:default:index.html.twig']
-    ]
-]);
+@UseCase("another_use_case_name")
+@InputProcessor("my_input_processor", foo="bar")
+@ResponseProcessor("my_response_processor", format="json", extra_fields={"foo"="bar"})
 ```
-The options provided in an anonymous Context will be merged with those of any custom Context or the defaults.
+
+It is possible to assign multiple Processors to a single Use Case. For details about how multiple Processors work 
+together, see chapter [Using multiple Input and Response Processors](05-using-multiple-input-and-response-processors.md).
 
 In [the next chapter](04-toolkit.md) you will find a list of Input and Response Processors provided with the Use Case Bundle.

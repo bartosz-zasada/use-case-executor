@@ -179,3 +179,67 @@ with the following content:
 ```
 {"success":false,"code":500,"message":"General Protection Fault"}
 ```
+
+## Magic Controller
+
+Use Case Bundle comes with a Magic Controller which contains several features that reduce the amount of code necessary
+to execute your Use Cases even further.
+ 
+### Magic Use Case Execution
+
+This feature allows you to execute a Use Case by calling a magic method `__call()` that translates the method name
+to the Use Case name. 
+
+```php
+<?php
+
+use Bamiz\UseCaseBundle\Controller\MagicController;
+use Symfony\Component\HttpFoundation\Request;
+
+class MyController extends MagicController
+{
+    public function myAction(Request $request)
+    {
+        $this->doWonderfulStuff($request, ['input' => 'foo', 'response' => 'bar']);
+        
+        // this is the equivalent of the above code without use of magic:
+        $this
+            ->get('bamiz_use_case.executor')
+            ->execute('do_wonderful_stuff', $request, ['input' => 'foo', 'response' => 'bar']);
+    }
+}
+```
+
+You can even use the Magic Controller to execute Use Cases as a specified Actor:
+
+```php
+$this->my_actor->doWonderfulStuff($request);
+
+// this is the equivalent of the above code without use of magic:
+$this
+    ->get('bamiz_use_case.executor')
+    ->asActor('my_actor')
+    ->execute('do_wonderful_stuff', $request);
+
+```
+
+### The Universal Action
+
+...
+Perhaps I should implement it first ;)
+
+
+### Pros and Cons
+
+Using the Magic Controller has both its pros and cons.
+
+#### Pros:
+* The code of your controllers gets as close to natural language as possible
+* If you choose to use the Universal Action of the Controller, you don't need your own controllers at all, if everything
+related to executing the Use Case can be handled with the proper configuration of Input and Response Processors
+
+#### Cons:
+* Too much magic obfuscates the way in which your controller code works, making the code harder to understand for people
+who are not familiar with Use Case Bundle
+* Using the Universal Action will increase the size of your routing configuration and might be counter-intuitive for
+developers experienced with Symfony

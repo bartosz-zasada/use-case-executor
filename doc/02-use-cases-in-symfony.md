@@ -49,7 +49,8 @@ Requests and Responses into Output is more complex than a simple mapping, you wi
 
 ## Input Processors
 
-To implement an Input Processor, create a class that implements ```InputProcessorInterface```. It contains one method: ```initializeRequest()```.
+To implement an Input Processor, create a class that implements `InputProcessorInterface`. It contains one method: 
+`initializeRequest()`.
 
 ```
 <?php
@@ -106,9 +107,9 @@ class MyInputProcessor implements InputProcessorInterface
 }
 ```
 
-Before you can use the Input Processor, register it as Symfony service. The service must have a  ```use_case_input_processor``` 
+Before you can use the Input Processor, register it as Symfony service. The service must have a  `use_case_input_processor` 
 tag, and an alias that you will later use to identify the Processor. This Processor reads GET parameters from an HTTP request, 
-so let's call it ```http_get```.
+so let's call it `http_get`.
 
 ```
 # app/config/services.yml
@@ -119,9 +120,9 @@ my_app.input_processor.my:
         - { name: use_case_input_processor, alias: http_get }
 ```
 
-Now that the Input Processor has been created and registered, let's use it with our Use Case. In the ```@UseCase``` 
-annotation next to the class, add the ```input``` option and provide the alias of the Input Processor as the value. 
-In order to make sure that the Input Processor worked, let's simply var_dump the Request object for now.
+Now that the Input Processor has been created and registered, let's use it with our Use Case. To do this, add another
+annotation next to `@UseCase` annotation: `@InputProcessor`, with the alias of the Input Processor as the value. 
+In order to make sure that the Input Processor works, let's simply `var_dump` the Request object for now.
 
 ```
 <?php
@@ -130,9 +131,11 @@ In order to make sure that the Input Processor worked, let's simply var_dump the
 namespace MyBundle\UseCase;
 
 use Bamiz\UseCaseBundle\Annotation\UseCase;
+use Bamiz\UseCaseBundle\Annotation\InputProcessor;
 
 /**
- * @UseCase(input="http_get")
+ * @UseCase()
+ * @InputProcessor("http_get")
  */
 class ListProductsInCategory
 {
@@ -178,8 +181,8 @@ see the var_dumped Request object, with the fields that match the query string v
 
 ## Response Processors
 
-To implement a Response Processor, create a class that extends ```ResponseProcessorInterface```. It contains two methods: 
-```processResponse()``` and ```handleException()```.
+To implement a Response Processor, create a class that extends `ResponseProcessorInterface`. It contains two methods: 
+`processResponse()` and `handleException()`.
 
 ```
 <?php
@@ -203,7 +206,7 @@ class VarDumpingResponseProcessor implements ResponseProcessorInterface
 
 ```
 
-When the Use Case is executed successfully (i.e. does not throw an exception), the Executor will call the ```processResponse()``` 
+When the Use Case is executed successfully (i.e. does not throw an exception), the Executor will call the `processResponse()` 
 method, passing the Response returned by the Use Case as the first argument. The second argument will contain configuration 
 options that can be used by the Processor to customize the Output producing process. When an exception is thrown, however, 
 the handleException method will be called with the exception as the first argument and the array of options as the second. 
@@ -247,8 +250,8 @@ class VarDumpingResponseProcessor implements ResponseProcessorInterface
 ```
 
 Similarly to Input Processors, Response Processors must be registered, otherwise the Executor will not be able to resolve 
-it. For this purpose you need to use a ```use_case_response_processor``` tag with ```alias``` option. Because var_dumping 
-everything is dumb, let's call this Processor ```var_dumb```.
+it. For this purpose you need to use a `use_case_response_processor` tag with `alias` option. Because `var_dump`ing 
+everything is dumb, let's call this Processor `var_dumb`.
 
 ```
 # app/config/services.yml
@@ -259,11 +262,19 @@ my_app.response_processor.var_dumping:
         - { name: use_case_response_processor, alias: var_dumb }
 ```
 
-Assigning a Response Processor to a Use Case is done in the same way as assigning an Input Processor, except for the option name, which is ```response```.
+Assigning a Response Processor to a Use Case is done using another annotation - `@ResponseProcessor`. Just like for 
+Input Processors, the value of the annotation is the alias of the Processor.
+
+Annotations are very convenient and expressive, but using them forces you to have in your code `use` statements that
+import classes belonging to the Use Case Bundle, thus coupling the library with your business logic. While this
+coupling does not affect the behavior of your business logic itself, it blurs the border between the two layers - 
+business logic layer and application layer - that should be kept separated. However, there are other ways to configure
+the delivery mechanism for your Use Cases, while keeping their implementations separated from the Bundle. See chapter
+[Use Case Contexts](03-use-case-contexts.md) for more information on this topic.
 
 Right now the Use Case does not return anything. Let's make it return a simple Response in order to see that everything works fine.
 We should also test the alternative course of action for the Use Case. For that, let's make the Use Case more interactive. 
-It should throw an exception whenever the string ```missing_category``` is passed as the category ID.
+It should throw an exception whenever the string `missing_category` is passed as the category ID.
 
 ```
 <?php
@@ -272,9 +283,13 @@ It should throw an exception whenever the string ```missing_category``` is passe
 namespace MyBundle\UseCase;
 
 use Bamiz\UseCaseBundle\Annotation\UseCase;
+use Bamiz\UseCaseBundle\Annotation\InputProcessor;
+use Bamiz\UseCaseBundle\Annotation\ResponseProcessor;
 
 /**
- * @UseCase(input="http_get")
+ * @UseCase()
+ * @InputProcessor("http_get")
+ * @ResponseProcessor("var_dumb")
  */
 class ListProductsInCategory
 {
@@ -289,14 +304,15 @@ class ListProductsInCategory
 }
 ```
 
-Notice that in this example we threw a ```CategoryNotFoundException``` instead of a generic PHP exception. This allows us to 
+Notice that in this example we threw a `CategoryNotFoundException` instead of a generic PHP exception. This allows us to 
 distinct the expected alternative courses, like nonexistent categories (users could accidentally or deliberately enter 
 an invalid category ID in the URL), from unexpected failures (for example, the database should always work). The 
-```CategoryNotFoundException``` extends the ```AlternativeCourseException``` that belongs to the Use Case Bundle. The ```AlternativeCourseException``` 
-is handled differently than other kinds of exceptions by the Response Processors that come with the Bundle. 
+`CategoryNotFoundException` extends the `AlternativeCourseException` that belongs to the Use Case Bundle. 
+The `AlternativeCourseException` is handled differently than other kinds of exceptions by the Response Processors 
+that come with the Bundle. 
 
 We have to make one small adjustment in the controller code. Now that the Executor will push the Use Case Response through 
-the Processor that will return an HTTP response, we can directly return the result of the ```execute()``` method call, 
+the Processor that will return an HTTP response, we can directly return the result of the `execute()` method call, 
 reducing the number of lines of code in the controller action to a grand total of one.
 
 ```
@@ -322,18 +338,18 @@ class MyController extends Controller
 
 ```
 
-Now execute the controller action in the browser. You should see the var_dumped Response object. If you go to the URL 
-that contains ```categoryId=missing_category``` in the query string, you should see the var_dumped exception.
+Now execute the controller action in the browser. You should see the `var_dump`ed Response object. If you go to the URL 
+that contains `categoryId=missing_category` in the query string, you should see the `var_dump`ed exception.
 
 ### Input Aware Response Processors
 
 Sometimes it might be necessary for the Response Processor to know something that the Input contains. For example, 
-consider the HTTP ```Accept``` header: it is used to request a response in certain format. The contents of this header, 
+consider the HTTP `Accept` header: it is used to request a response in certain format. The contents of this header, 
 however, should not be known to the Use Case, because a HTTP request header is something that belongs to the Application 
 Layer.
 
-For this purpose you can make your Response Processor implement ```InputAwareResponseProcessorInterface```. Additionally
-to the methods of ```ResponseProcessorInterface``` it contains ```setInput()``` method. This method will used by the
+For this purpose you can make your Response Processor implement `InputAwareResponseProcessorInterface```. Additionally
+to the methods of `ResponseProcessorInterface` it contains `setInput()` method. This method will used by the
 Executor to pass the Input object to your Response Processor.
 
 
