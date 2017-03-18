@@ -234,7 +234,7 @@ to the Use Cases directly in your `routing.yml` files.
 my_use_case:
     path: /my_use_case
     defaults:
-        _controller: BamizUseCase:magic:useCase
+        _controller: BamizUseCaseBundle:magic:useCase
         _use_case: my_use_case
         _input: http
         _response: { twig: { template: my_use_case.html.twig } }
