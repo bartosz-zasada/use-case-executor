@@ -43,7 +43,7 @@ class UseCaseContextResolver
     private $configurations = [];
 
     /**
-     * @var UseCaseConfiguration[]
+     * @var UseCaseSpecificConfiguration[]
      */
     private $useCaseSpecificConfigurations = [];
 

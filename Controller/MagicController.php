@@ -3,12 +3,11 @@
 namespace Bamiz\UseCaseBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class UseCaseExecutingController extends Controller
+class MagicController extends Controller
 {
-    use ContainerAwareTrait;
-
     /**
      * @var string
      */
@@ -23,6 +22,28 @@ class UseCaseExecutingController extends Controller
     {
         $this->actorName = $name;
         return $this;
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function useCaseAction(Request $request)
+    {
+        $configuration = [];
+        foreach (['input', 'response'] as $processor) {
+            if ($request->attributes->has('_' . $processor)) {
+                $configuration[$processor] = $request->attributes->get('_' . $processor);
+            }
+        }
+
+        $executor = $this->get('bamiz_use_case.executor');
+        if ($request->attributes->has('_actor')) {
+            $executor = $executor->asActor($request->attributes->get('_actor'));
+        }
+
+        return $executor->execute($request->attributes->get('_use_case'), $configuration);
     }
 
     /**

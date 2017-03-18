@@ -10,6 +10,9 @@ class CompositeActorSpec extends ObjectBehavior
 {
     public function let(ActorInterface $actor1, ActorInterface $actor2)
     {
+        $actor1->getName()->willReturn('superman');
+        $actor2->getName()->willReturn('batman');
+
         $actor1->canExecute('drive a car')->willReturn(true);
         $actor2->canExecute('drive a car')->willReturn(false);
         $actor1->canExecute('fly a plane')->willReturn(false);
@@ -45,5 +48,25 @@ class CompositeActorSpec extends ObjectBehavior
         $this->canExecute('drive a car')->shouldBe(true);
         $this->canExecute('fly a plane')->shouldBe(true);
         $this->canExecute('sail a boat')->shouldBe(false);
+    }
+
+    public function it_returns_contained_actor_by_name(ActorInterface $actor1, ActorInterface $actor2)
+    {
+        $this->addActor($actor1);
+        $this->addActor($actor2);
+
+        $this->getActorByName('superman')->shouldBe($actor1);
+        $this->getActorByName('batman')->shouldBe($actor2);
+        $this->getActorByName('spiderman')->shouldBe(null);
+    }
+
+    public function it_checks_if_actor_by_given_name_has_been_added(ActorInterface $actor1, ActorInterface $actor2)
+    {
+        $this->addActor($actor1);
+        $this->addActor($actor2);
+
+        $this->hasActor('superman')->shouldBe(true);
+        $this->hasActor('batman')->shouldBe(true);
+        $this->hasActor('spiderman')->shouldBe(false);
     }
 }

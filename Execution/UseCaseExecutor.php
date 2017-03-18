@@ -3,6 +3,7 @@
 namespace Bamiz\UseCaseBundle\Execution;
 
 use Bamiz\UseCaseBundle\Actor\CompositeActorRecognizer;
+use Bamiz\UseCaseBundle\Actor\UnableActor;
 use Bamiz\UseCaseBundle\Processor\Response\InputAwareResponseProcessor;
 use Bamiz\UseCaseBundle\UseCase\RequestClassNotFoundException;
 
@@ -110,7 +111,13 @@ class UseCaseExecutor
         $actor = $this->actorRecognizer->recognizeActor($useCaseRequest);
 
         if (!$actor->canExecute($useCaseName)) {
-            throw new ActorCannotExecuteUseCaseException();
+            if ($actor instanceof UnableActor) {
+                $message = sprintf('No Actor can execute "%s" Use Case.', $useCaseName);
+            } else {
+                $message = sprintf('Actor "%s" cannot execute "%s" Use Case.', $actor->getName(), $useCaseName);
+            }
+
+            throw new ActorCannotExecuteUseCaseException($message);
         }
     }
 }

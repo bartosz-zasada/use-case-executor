@@ -37,6 +37,7 @@ class UseCaseExecutorSpec extends ObjectBehavior
         $this->beConstructedWith($contextResolver, $actorRecognizer);
 
         $actorRecognizer->recognizeActor($useCaseRequest)->willReturn($actor);
+        $actor->getName()->willReturn('actor');
         $actor->canExecute('use_case')->willReturn(true);
 
         $contextResolver->resolveContext('use_case', Argument::any())->willReturn($context);

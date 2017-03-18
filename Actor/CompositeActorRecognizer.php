@@ -29,7 +29,7 @@ class CompositeActorRecognizer implements ActorRecognizerInterface
      * @param object $useCaseRequest
      *
      * @return ActorInterface
-     * @throws ActorNotFoundException
+     * @throws UnrecognizedActorException
      */
     public function recognizeActorByName($actorName, $useCaseRequest)
     {
@@ -40,7 +40,7 @@ class CompositeActorRecognizer implements ActorRecognizerInterface
             }
         }
 
-        throw new ActorNotFoundException(sprintf('Actor "%s" not found.', $actorName));
+        throw new UnrecognizedActorException(sprintf('No Actor has been recognized as "%s".', $actorName));
     }
 
     /**

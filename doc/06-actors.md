@@ -96,7 +96,10 @@ $this->get('bamiz.use_case_executor')->execute('my_use_case', $input);
 
 The Executor will go through all registered Actor Recognizers searching for Actors that can execute the specified
 Use Case. It is possible that more than one Actor can execute the specified Use Case. When that happens, these
-Actors are returned inside a single object which is an instance of `CompositeActor`.
+Actors are returned inside a single object which is an instance of `CompositeActor`. Its implementation of
+`canExecute()` method calls `canExecute()` method on each contained Actor, until the result of this call equals `true`.
+`CompositeActor` also allows you to check if it contains certain Actors and retrieve them by name, with methods
+`hasActor()` and `getActor()` respectively.
 
 In any case, after the Actor has been recognized, its `canExecute()` method is called to check if it's able to
 execute the desired Use Case. If `canExecute()` returns `false`, the Executor throws 

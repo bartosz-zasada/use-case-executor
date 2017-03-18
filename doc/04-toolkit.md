@@ -225,9 +225,31 @@ $this
 
 ### The Universal Action
 
-...
-Perhaps I should implement it first ;)
+`MagicController` comes with an action that reads the name of the Use Case, configuration of Input and Response
+processors, and Actor name from the `attributes` field of Symfony Request. This means that you can map your routes
+to the Use Cases directly in your `routing.yml` files. 
 
+```yml
+# app/config/routing.yml
+my_use_case:
+    path: /my_use_case
+    defaults:
+        _controller: BamizUseCase:magic:useCase
+        _use_case: my_use_case
+        _input: http
+        _response: { twig: { template: my_use_case.html.twig } }
+        _actor: my_actor
+```
+
+Using routing configuration as shown above, visiting `/my_use_case` will use the Use Case Executor in the way equivalent
+to this code:
+
+```php
+$this
+    ->get('bamiz_use_case.executor')
+    ->asActor('my_actor')
+    ->execute('my_use_case', $request, ['input' => 'http', 'response' => ['twig' => ['template' => 'my_use_case.html.twig']]]);
+```
 
 ### Pros and Cons
 
@@ -236,7 +258,7 @@ Using the Magic Controller has both its pros and cons.
 #### Pros:
 * The code of your controllers gets as close to natural language as possible
 * If you choose to use the Universal Action of the Controller, you don't need your own controllers at all, if everything
-related to executing the Use Case can be handled with the proper configuration of Input and Response Processors
+related to executing the Use Case can be handled with proper configuration of Input and Response Processors
 
 #### Cons:
 * Too much magic obfuscates the way in which your controller code works, making the code harder to understand for people

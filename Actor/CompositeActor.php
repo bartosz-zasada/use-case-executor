@@ -40,7 +40,7 @@ class CompositeActor implements ActorInterface
      */
     public function addActor(ActorInterface $actor)
     {
-        $this->actors[] = $actor;
+        $this->actors[$actor->getName()] = $actor;
     }
 
     /**
@@ -49,5 +49,25 @@ class CompositeActor implements ActorInterface
     public function getName()
     {
         return 'composite';
+    }
+
+    /**
+     * @param string $actorName
+     *
+     * @return ActorInterface|null
+     */
+    public function getActorByName($actorName)
+    {
+        return isset($this->actors[$actorName]) ? $this->actors[$actorName] : null;
+    }
+
+    /**
+     * @param string $actorName
+     *
+     * @return bool
+     */
+    public function hasActor($actorName)
+    {
+        return isset($this->actors[$actorName]);
     }
 }

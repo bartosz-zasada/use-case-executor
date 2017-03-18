@@ -3,7 +3,7 @@
 namespace spec\Bamiz\UseCaseBundle\Actor;
 
 use Bamiz\UseCaseBundle\Actor\ActorInterface;
-use Bamiz\UseCaseBundle\Actor\ActorNotFoundException;
+use Bamiz\UseCaseBundle\Actor\UnrecognizedActorException;
 use Bamiz\UseCaseBundle\Actor\ActorRecognizerInterface;
 use Bamiz\UseCaseBundle\Actor\CompositeActor;
 use Bamiz\UseCaseBundle\Actor\OmnipotentActor;
@@ -105,7 +105,7 @@ class CompositeActorRecognizerSpec extends ObjectBehavior
 
     public function it_throws_an_exception_if_actor_cannot_be_found_by_name()
     {
-        $this->shouldThrow(ActorNotFoundException::class)->duringRecognizeActorByName('no such actor here', null);
+        $this->shouldThrow(UnrecognizedActorException::class)->duringRecognizeActorByName('no such actor here', null);
     }
 }
 
