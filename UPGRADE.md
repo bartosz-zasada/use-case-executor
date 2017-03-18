@@ -36,7 +36,7 @@ format for Processor options.
     )
     ```
 
-The YAML and array structure has been changed in the same way. See chapter (Use Case Contexts)[doc/03-use-case-contexts.md]
+The YAML and array structure has been changed in the same way. See chapter [Use Case Contexts](doc/03-use-case-contexts.md)
 for details.
 
 * `Lamudi\UseCaseBundle\Exception\UseCaseException` has been renamed to 
@@ -58,10 +58,10 @@ to the `$options` argument.
   
 New features:
 
-* Support for actors. See chapter (Actors)[doc/06-actors.md] for details.
+* Support for actors. See chapter [Actors](doc/06-actors.md) for details.
 * New annotations for configuring Input and Response processors for Use Cases: `@InputProcessor` and `@ResponseProcessor`.
 It is possible to use multiple annotations per Use Case, thus using many Processors to process Input or Response.
 * Ability to register Use Cases using a tag instead of the `@UseCase` annotation. In this case, the annotations
 of the Use Case class are ignored.
 * Base Controller that executes Use Cases. Supports magic methods and passing the name and the configuration of the
-Use Case as route attributes. See chapter (Toolkit)[doc/04-toolkit.md] for details.
+Use Case as route attributes. See chapter [Toolkit](doc/04-toolkit.md) for details.

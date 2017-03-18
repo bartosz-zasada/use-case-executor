@@ -73,17 +73,17 @@ class MagicControllerSpec extends ObjectBehavior
         $attributeBag->has('_actor')->willReturn(false);
         $attributeBag->get('_use_case')->willReturn('do_something');
         $this->useCaseAction($request)->shouldBe($response);
-        $useCaseExecutor->execute('do_something', [])->shouldHaveBeenCalled();
+        $useCaseExecutor->execute('do_something', $request, [])->shouldHaveBeenCalled();
 
         $attributeBag->has('_input')->willReturn(true);
         $attributeBag->get('_input')->willReturn('http');
         $this->useCaseAction($request)->shouldBe($response);
-        $useCaseExecutor->execute('do_something', ['input' => 'http'])->shouldHaveBeenCalled();
+        $useCaseExecutor->execute('do_something', $request, ['input' => 'http'])->shouldHaveBeenCalled();
 
         $attributeBag->has('_response')->willReturn(true);
         $attributeBag->get('_response')->willReturn('cli');
         $this->useCaseAction($request)->shouldBe($response);
-        $useCaseExecutor->execute('do_something', ['input' => 'http', 'response' => 'cli'])->shouldHaveBeenCalled();
+        $useCaseExecutor->execute('do_something', $request, ['input' => 'http', 'response' => 'cli'])->shouldHaveBeenCalled();
     }
 
     public function it_executes_use_case_with_universal_action_as_actor(
@@ -104,7 +104,7 @@ class MagicControllerSpec extends ObjectBehavior
         $useCaseExecutor->execute(Argument::cetera())->shouldNotBeCalled();
         $useCaseExecutor->asActor('jedi')->willReturn($useCaseAsActorExecutor);
 
-        $useCaseAsActorExecutor->execute('do_something', [])->willReturn($response);
+        $useCaseAsActorExecutor->execute('do_something', $request, [])->willReturn($response);
 
         $this->useCaseAction($request)->shouldBe($response);
     }

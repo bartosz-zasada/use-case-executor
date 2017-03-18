@@ -43,7 +43,7 @@ class MagicController extends Controller
             $executor = $executor->asActor($request->attributes->get('_actor'));
         }
 
-        return $executor->execute($request->attributes->get('_use_case'), $configuration);
+        return $executor->execute($request->attributes->get('_use_case'), $request, $configuration);
     }
 
     /**
