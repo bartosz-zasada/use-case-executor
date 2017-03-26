@@ -65,3 +65,9 @@ It is possible to use multiple annotations per Use Case, thus using many Process
 of the Use Case class are ignored.
 * Base Controller that executes Use Cases. Supports magic methods and passing the name and the configuration of the
 Use Case as route attributes. See chapter [Toolkit](doc/04-toolkit.md) for details.
+
+## From 0.4 to 0.5
+
+Use Case Executor has been separated from Use Case Bundle. As a result, the namespace prefix for all class has been
+changed from `Bamiz\UseCaseBundle` to `Bamiz\UseCaseExecutor`. Also, `UseCaseExecutor` has been moved to the top
+level namespace, so that the primary purpose of this library is visible right away ;)
