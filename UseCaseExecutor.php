@@ -1,11 +1,15 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\Execution;
+namespace Bamiz\UseCaseExecutor;
 
-use Bamiz\UseCaseBundle\Actor\CompositeActorRecognizer;
-use Bamiz\UseCaseBundle\Actor\UnableActor;
-use Bamiz\UseCaseBundle\Processor\Response\InputAwareResponseProcessor;
-use Bamiz\UseCaseBundle\UseCase\RequestClassNotFoundException;
+use Bamiz\UseCaseExecutor\Actor\CompositeActorRecognizer;
+use Bamiz\UseCaseExecutor\Actor\UnableActor;
+use Bamiz\UseCaseExecutor\Execution\ActorCannotExecuteUseCaseException;
+use Bamiz\UseCaseExecutor\Execution\UseCaseContext;
+use Bamiz\UseCaseExecutor\Execution\UseCaseContextResolver;
+use Bamiz\UseCaseExecutor\Execution\UseCaseNotFoundException;
+use Bamiz\UseCaseExecutor\Processor\Response\InputAwareResponseProcessor;
+use Bamiz\UseCaseExecutor\UseCase\RequestClassNotFoundException;
 
 class UseCaseExecutor
 {

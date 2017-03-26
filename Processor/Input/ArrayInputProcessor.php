@@ -1,6 +1,6 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\Processor\Input;
+namespace Bamiz\UseCaseExecutor\Processor\Input;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 

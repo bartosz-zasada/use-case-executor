@@ -1,6 +1,6 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\Processor\Exception;
+namespace Bamiz\UseCaseExecutor\Processor\Exception;
 
 class UnsupportedInputException extends \Exception
 {

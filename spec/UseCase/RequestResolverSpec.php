@@ -1,20 +1,16 @@
 <?php
 
-namespace spec\Bamiz\UseCaseBundle\UseCase;
+namespace spec\Bamiz\UseCaseExecutor\UseCase;
 
-use Bamiz\UseCaseBundle\UseCase\RequestClassNotFoundException;
-use Bamiz\UseCaseBundle\UseCase\RequestResolver;
+use Bamiz\UseCaseExecutor\UseCase\RequestClassNotFoundException;
+use Bamiz\UseCaseExecutor\UseCase\RequestResolver;
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 
-/**
- * @mixin RequestResolver
- */
 class RequestResolverSpec extends ObjectBehavior
 {
-    function it_is_initializable()
+    public function it_is_initializable()
     {
-        $this->shouldHaveType('Bamiz\UseCaseBundle\UseCase\RequestResolver');
+        $this->shouldHaveType(RequestResolver::class);
     }
 
     public function it_tries_to_use_type_hint_in_execute_method()

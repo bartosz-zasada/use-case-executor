@@ -1,17 +1,15 @@
 <?php
 
-namespace spec\Bamiz\UseCaseBundle\Processor\Input;
+namespace spec\Bamiz\UseCaseExecutor\Processor\Input;
 
-use Bamiz\UseCaseBundle\Container\ContainerInterface;
-use Bamiz\UseCaseBundle\Processor\Exception\EmptyCompositeProcessorException;
-use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseExecutor\Container\ContainerInterface;
+use Bamiz\UseCaseExecutor\Processor\Exception\EmptyCompositeProcessorException;
+use Bamiz\UseCaseExecutor\Processor\Input\CompositeInputProcessor;
+use Bamiz\UseCaseExecutor\Processor\Input\InputProcessorInterface;
 use PhpSpec\Exception\Example\MatcherException;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
-/**
- * @mixin \Bamiz\UseCaseBundle\Processor\Input\CompositeInputProcessor
- */
 class CompositeInputProcessorSpec extends ObjectBehavior
 {
     public function let(
@@ -24,9 +22,9 @@ class CompositeInputProcessorSpec extends ObjectBehavior
         $inputProcessorContainer->get('processor_2')->willReturn($inputProcessor2);
     }
 
-    function it_is_initializable()
+    public function it_is_initializable()
     {
-        $this->shouldHaveType('Bamiz\UseCaseBundle\Processor\Input\CompositeInputProcessor');
+        $this->shouldHaveType(CompositeInputProcessor::class);
     }
 
     public function it_is_an_input_processor()

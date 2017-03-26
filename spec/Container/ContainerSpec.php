@@ -1,18 +1,18 @@
 <?php
 
-namespace spec\Bamiz\UseCaseBundle\Container;
+namespace spec\Bamiz\UseCaseExecutor\Container;
 
-use Bamiz\UseCaseBundle\Container\ItemNotFoundException;
-use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
-use Bamiz\UseCaseBundle\UseCase\UseCaseInterface;
+use Bamiz\UseCaseExecutor\Container\Container;
+use Bamiz\UseCaseExecutor\Container\ItemNotFoundException;
+use Bamiz\UseCaseExecutor\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseExecutor\UseCase\UseCaseInterface;
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 
 class ContainerSpec extends ObjectBehavior
 {
-    function it_is_initializable()
+    public function it_is_initializable()
     {
-        $this->shouldHaveType('Bamiz\UseCaseBundle\Container\Container');
+        $this->shouldHaveType(Container::class);
     }
 
     public function it_stores_an_item_in_the_container(UseCaseInterface $useCase, InputProcessorInterface $inputProcessor)

@@ -1,6 +1,6 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\Container;
+namespace Bamiz\UseCaseExecutor\Container;
 
 /**
  * Use this interface to mark containers that accept references to services instead of their instances.

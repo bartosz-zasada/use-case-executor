@@ -1,6 +1,6 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\UseCase;
+namespace Bamiz\UseCaseExecutor\UseCase;
 
 class RequestResolver
 {

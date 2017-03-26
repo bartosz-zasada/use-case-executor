@@ -1,6 +1,6 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\Execution;
+namespace Bamiz\UseCaseExecutor\Execution;
 
 /**
  * Provides parameters necessary for the execution of the use case using the Use Case Executor.

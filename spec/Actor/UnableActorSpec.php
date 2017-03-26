@@ -1,10 +1,10 @@
 <?php
 
-namespace spec\Bamiz\UseCaseBundle\Actor;
+namespace spec\Bamiz\UseCaseExecutor\Actor;
 
-use Bamiz\UseCaseBundle\Actor\ActorInterface;
+use Bamiz\UseCaseExecutor\Actor\ActorInterface;
 use PhpSpec\ObjectBehavior;
-use Bamiz\UseCaseBundle\Actor\UnableActor;
+use Bamiz\UseCaseExecutor\Actor\UnableActor;
 
 class UnableActorSpec extends ObjectBehavior
 {

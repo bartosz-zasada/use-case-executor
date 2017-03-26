@@ -1,15 +1,10 @@
 <?php
 
-namespace spec\Bamiz\UseCaseBundle\Execution;
+namespace spec\Bamiz\UseCaseExecutor\Execution;
 
-use Bamiz\UseCaseBundle\Execution\UseCaseConfiguration;
+use Bamiz\UseCaseExecutor\Execution\UseCaseConfiguration;
 use PhpSpec\ObjectBehavior;
 
-/**
- * Class UseCaseConfigurationSpec
- *
- * @mixin \Bamiz\UseCaseBundle\Execution\UseCaseConfiguration
- */
 class UseCaseConfigurationSpec extends ObjectBehavior
 {
     public function it_is_initializable()

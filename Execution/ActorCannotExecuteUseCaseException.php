@@ -1,6 +1,6 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\Execution;
+namespace Bamiz\UseCaseExecutor\Execution;
 
 class ActorCannotExecuteUseCaseException extends \Exception
 {

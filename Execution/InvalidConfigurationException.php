@@ -1,6 +1,6 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\Execution;
+namespace Bamiz\UseCaseExecutor\Execution;
 
 /**
  * Thrown when the provided use case configuration is invalid.

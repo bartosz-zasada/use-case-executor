@@ -1,13 +1,13 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\Execution;
+namespace Bamiz\UseCaseExecutor\Execution;
 
-use Bamiz\UseCaseBundle\Container\ContainerInterface;
-use Bamiz\UseCaseBundle\Container\ItemNotFoundException;
-use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
-use Bamiz\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
-use Bamiz\UseCaseBundle\UseCase\RequestClassNotFoundException;
-use Bamiz\UseCaseBundle\UseCase\UseCaseInterface;
+use Bamiz\UseCaseExecutor\Container\ContainerInterface;
+use Bamiz\UseCaseExecutor\Container\ItemNotFoundException;
+use Bamiz\UseCaseExecutor\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseExecutor\Processor\Response\ResponseProcessorInterface;
+use Bamiz\UseCaseExecutor\UseCase\RequestClassNotFoundException;
+use Bamiz\UseCaseExecutor\UseCase\UseCaseInterface;
 
 /**
  * Creates the context for the Use Case execution.
@@ -63,7 +63,8 @@ class UseCaseContextResolver
         $this->responseProcessorContainer = $responseProcessorContainer;
 
         $this->configurations[$this->defaultContextName] = new UseCaseConfiguration([
-            'input' => self::DEFAULT_INPUT_PROCESSOR, 'response' => self::DEFAULT_RESPONSE_PROCESSOR
+            'input'    => self::DEFAULT_INPUT_PROCESSOR,
+            'response' => self::DEFAULT_RESPONSE_PROCESSOR
         ]);
     }
 

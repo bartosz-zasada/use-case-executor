@@ -1,10 +1,10 @@
 <?php
 
-namespace spec\Bamiz\UseCaseBundle\Execution;
+namespace spec\Bamiz\UseCaseExecutor\Execution;
 
-use Bamiz\UseCaseBundle\Execution\InvalidConfigurationException;
+use Bamiz\UseCaseExecutor\Execution\InvalidConfigurationException;
 use PhpSpec\ObjectBehavior;
-use Bamiz\UseCaseBundle\Execution\UseCaseSpecificConfiguration;
+use Bamiz\UseCaseExecutor\Execution\UseCaseSpecificConfiguration;
 
 class UseCaseSpecificConfigurationSpec extends ObjectBehavior
 {

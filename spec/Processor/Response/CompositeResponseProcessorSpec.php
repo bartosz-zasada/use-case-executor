@@ -1,22 +1,21 @@
 <?php
 
-namespace spec\Bamiz\UseCaseBundle\Processor\Response;
+namespace spec\Bamiz\UseCaseExecutor\Processor\Response;
 
-use Bamiz\UseCaseBundle\Container\ContainerInterface;
-use Bamiz\UseCaseBundle\Exception\AlternativeCourseException;
-use Bamiz\UseCaseBundle\Processor\Exception\EmptyCompositeProcessorException;
-use Bamiz\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
+use Bamiz\UseCaseExecutor\Container\ContainerInterface;
+use Bamiz\UseCaseExecutor\Exception\AlternativeCourseException;
+use Bamiz\UseCaseExecutor\Processor\Exception\EmptyCompositeProcessorException;
+use Bamiz\UseCaseExecutor\Processor\Response\CompositeResponseProcessor;
+use Bamiz\UseCaseExecutor\Processor\Response\ResponseProcessorInterface;
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 
-/**
- * @mixin \Bamiz\UseCaseBundle\Processor\Response\CompositeResponseProcessor
- */
 class CompositeResponseProcessorSpec extends ObjectBehavior
 {
     public function let(
-        ResponseProcessorInterface $responseProcessor1, ResponseProcessorInterface $responseProcessor2,
-        ResponseProcessorInterface $responseProcessor3, ResponseProcessorInterface $responseProcessor4,
+        ResponseProcessorInterface $responseProcessor1,
+        ResponseProcessorInterface $responseProcessor2,
+        ResponseProcessorInterface $responseProcessor3,
+        ResponseProcessorInterface $responseProcessor4,
         ContainerInterface $responseProcessorContainer
     )
     {
@@ -27,9 +26,9 @@ class CompositeResponseProcessorSpec extends ObjectBehavior
         $responseProcessorContainer->get('processor_4')->willReturn($responseProcessor4);
     }
 
-    function it_is_initializable()
+    public function it_is_initializable()
     {
-        $this->shouldHaveType('Bamiz\UseCaseBundle\Processor\Response\CompositeResponseProcessor');
+        $this->shouldHaveType(CompositeResponseProcessor::class);
     }
 
     public function it_is_a_response_processor()
@@ -38,7 +37,8 @@ class CompositeResponseProcessorSpec extends ObjectBehavior
     }
 
     public function it_passes_the_result_of_the_previous_response_processing_to_the_next_processor(
-        ResponseProcessorInterface $responseProcessor1, ResponseProcessorInterface $responseProcessor2
+        ResponseProcessorInterface $responseProcessor1,
+        ResponseProcessorInterface $responseProcessor2
     )
     {
         $response = ['some' => 'response'];
@@ -52,7 +52,8 @@ class CompositeResponseProcessorSpec extends ObjectBehavior
     }
 
     public function it_uses_options_per_response_processor(
-        ResponseProcessorInterface $responseProcessor1, ResponseProcessorInterface $responseProcessor2
+        ResponseProcessorInterface $responseProcessor1,
+        ResponseProcessorInterface $responseProcessor2
     )
     {
         $response = ['some' => 'response'];
@@ -69,7 +70,8 @@ class CompositeResponseProcessorSpec extends ObjectBehavior
     }
 
     public function it_handles_exceptions_and_forwards_the_result_to_the_next_processor(
-        ResponseProcessorInterface $responseProcessor1, ResponseProcessorInterface $responseProcessor2
+        ResponseProcessorInterface $responseProcessor1,
+        ResponseProcessorInterface $responseProcessor2
     )
     {
         $exception = new AlternativeCourseException();
@@ -83,7 +85,8 @@ class CompositeResponseProcessorSpec extends ObjectBehavior
     }
 
     public function it_handles_exceptions_using_options(
-        ResponseProcessorInterface $responseProcessor1, ResponseProcessorInterface $responseProcessor2
+        ResponseProcessorInterface $responseProcessor1,
+        ResponseProcessorInterface $responseProcessor2
     )
     {
         $exception1 = new AlternativeCourseException();
@@ -100,7 +103,8 @@ class CompositeResponseProcessorSpec extends ObjectBehavior
     }
 
     public function it_continues_handling_exception_until_no_longer_getting_one(
-        ResponseProcessorInterface $responseProcessor1, ResponseProcessorInterface $responseProcessor2,
+        ResponseProcessorInterface $responseProcessor1,
+        ResponseProcessorInterface $responseProcessor2,
         ResponseProcessorInterface $responseProcessor3
     )
     {
@@ -118,7 +122,8 @@ class CompositeResponseProcessorSpec extends ObjectBehavior
     }
 
     public function it_throws_an_exception_if_all_processors_threw_an_exception(
-        ResponseProcessorInterface $responseProcessor1, ResponseProcessorInterface $responseProcessor2
+        ResponseProcessorInterface $responseProcessor1,
+        ResponseProcessorInterface $responseProcessor2
     )
     {
         $exception1 = new \OutOfBoundsException();

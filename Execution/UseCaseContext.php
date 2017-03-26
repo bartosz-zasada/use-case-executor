@@ -1,10 +1,10 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\Execution;
+namespace Bamiz\UseCaseExecutor\Execution;
 
-use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
-use Bamiz\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
-use Bamiz\UseCaseBundle\UseCase\UseCaseInterface;
+use Bamiz\UseCaseExecutor\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseExecutor\Processor\Response\ResponseProcessorInterface;
+use Bamiz\UseCaseExecutor\UseCase\UseCaseInterface;
 
 /**
  * Use Case Context consists of all the processors resolved for the Use Case execution and the created empty

@@ -1,6 +1,6 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\Container;
+namespace Bamiz\UseCaseExecutor\Container;
 
 class Container implements ContainerInterface
 {

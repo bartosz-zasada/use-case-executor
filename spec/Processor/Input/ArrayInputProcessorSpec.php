@@ -1,20 +1,16 @@
 <?php
 
-namespace spec\Bamiz\UseCaseBundle\Processor\Input;
+namespace spec\Bamiz\UseCaseExecutor\Processor\Input;
 
-use Bamiz\UseCaseBundle\Processor\Input\ArrayInputProcessor;
-use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseExecutor\Processor\Input\ArrayInputProcessor;
+use Bamiz\UseCaseExecutor\Processor\Input\InputProcessorInterface;
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 
-/**
- * @mixin ArrayInputProcessor
- */
 class ArrayInputProcessorSpec extends ObjectBehavior
 {
-    function it_is_initializable()
+    public function it_is_initializable()
     {
-        $this->shouldHaveType('Bamiz\UseCaseBundle\Processor\Input\ArrayInputProcessor');
+        $this->shouldHaveType(ArrayInputProcessor::class);
     }
 
     public function it_is_an_input_processor()

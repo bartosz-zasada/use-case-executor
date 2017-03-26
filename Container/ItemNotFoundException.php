@@ -1,6 +1,6 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\Container;
+namespace Bamiz\UseCaseExecutor\Container;
 
 /**
  * Thrown when an item could not be found in a container.

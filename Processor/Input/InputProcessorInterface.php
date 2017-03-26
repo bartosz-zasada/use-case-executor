@@ -1,6 +1,6 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\Processor\Input;
+namespace Bamiz\UseCaseExecutor\Processor\Input;
 
 interface InputProcessorInterface
 {

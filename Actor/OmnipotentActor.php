@@ -1,6 +1,6 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\Actor;
+namespace Bamiz\UseCaseExecutor\Actor;
 
 class OmnipotentActor implements ActorInterface
 {

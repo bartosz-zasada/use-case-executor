@@ -1,9 +1,9 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\Processor\Input;
+namespace Bamiz\UseCaseExecutor\Processor\Input;
 
-use Bamiz\UseCaseBundle\Container\ContainerInterface;
-use Bamiz\UseCaseBundle\Processor\Exception\EmptyCompositeProcessorException;
+use Bamiz\UseCaseExecutor\Container\ContainerInterface;
+use Bamiz\UseCaseExecutor\Processor\Exception\EmptyCompositeProcessorException;
 
 class CompositeInputProcessor implements InputProcessorInterface
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\UseCase;
+namespace Bamiz\UseCaseExecutor\UseCase;
 
 /**
  * This interface serves as a specification of a use case object.

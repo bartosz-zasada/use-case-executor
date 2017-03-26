@@ -1,6 +1,6 @@
 <?php
 
-namespace Bamiz\UseCaseBundle\Exception;
+namespace Bamiz\UseCaseExecutor\Exception;
 
 /**
  * The exceptions thrown by use cases should extend this exception to distinct alternative courses of use

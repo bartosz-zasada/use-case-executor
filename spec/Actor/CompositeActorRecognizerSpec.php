@@ -1,15 +1,15 @@
 <?php
 
-namespace spec\Bamiz\UseCaseBundle\Actor;
+namespace spec\Bamiz\UseCaseExecutor\Actor;
 
-use Bamiz\UseCaseBundle\Actor\ActorInterface;
-use Bamiz\UseCaseBundle\Actor\UnrecognizedActorException;
-use Bamiz\UseCaseBundle\Actor\ActorRecognizerInterface;
-use Bamiz\UseCaseBundle\Actor\CompositeActor;
-use Bamiz\UseCaseBundle\Actor\OmnipotentActor;
-use Bamiz\UseCaseBundle\Actor\UnableActor;
+use Bamiz\UseCaseExecutor\Actor\ActorInterface;
+use Bamiz\UseCaseExecutor\Actor\UnrecognizedActorException;
+use Bamiz\UseCaseExecutor\Actor\ActorRecognizerInterface;
+use Bamiz\UseCaseExecutor\Actor\CompositeActor;
+use Bamiz\UseCaseExecutor\Actor\OmnipotentActor;
+use Bamiz\UseCaseExecutor\Actor\UnableActor;
 use PhpSpec\ObjectBehavior;
-use Bamiz\UseCaseBundle\Actor\CompositeActorRecognizer;
+use Bamiz\UseCaseExecutor\Actor\CompositeActorRecognizer;
 
 class CompositeActorRecognizerSpec extends ObjectBehavior
 {

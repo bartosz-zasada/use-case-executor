@@ -1,30 +1,36 @@
 <?php
 
-namespace spec\Bamiz\UseCaseBundle\Execution;
+namespace spec\Bamiz\UseCaseExecutor\Execution;
 
-use Bamiz\UseCaseBundle\Container\ContainerInterface;
-use Bamiz\UseCaseBundle\Execution\InvalidConfigurationException;
-use Bamiz\UseCaseBundle\Execution\UseCaseConfiguration;
-use Bamiz\UseCaseBundle\Execution\UseCaseContext;
-use Bamiz\UseCaseBundle\Execution\UseCaseContextResolver;
-use Bamiz\UseCaseBundle\Execution\InputProcessorNotFoundException;
-use Bamiz\UseCaseBundle\Execution\ResponseProcessorNotFoundException;
-use Bamiz\UseCaseBundle\Container\ItemNotFoundException;
-use Bamiz\UseCaseBundle\Execution\UseCaseNotFoundException;
-use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
-use Bamiz\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
-use Bamiz\UseCaseBundle\UseCase\UseCaseInterface;
+use Bamiz\UseCaseExecutor\Container\ContainerInterface;
+use Bamiz\UseCaseExecutor\Execution\InvalidConfigurationException;
+use Bamiz\UseCaseExecutor\Execution\UseCaseConfiguration;
+use Bamiz\UseCaseExecutor\Execution\UseCaseContext;
+use Bamiz\UseCaseExecutor\Execution\UseCaseContextResolver;
+use Bamiz\UseCaseExecutor\Execution\InputProcessorNotFoundException;
+use Bamiz\UseCaseExecutor\Execution\ResponseProcessorNotFoundException;
+use Bamiz\UseCaseExecutor\Container\ItemNotFoundException;
+use Bamiz\UseCaseExecutor\Execution\UseCaseNotFoundException;
+use Bamiz\UseCaseExecutor\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseExecutor\Processor\Response\ResponseProcessorInterface;
+use Bamiz\UseCaseExecutor\UseCase\UseCaseInterface;
 use PhpSpec\ObjectBehavior;
 
 class UseCaseContextResolverSpec extends ObjectBehavior
 {
     public function let(
-        ContainerInterface $useCaseContainer, UseCaseInterface $useCase,
-        ContainerInterface $inputProcessorContainer, ContainerInterface $responseProcessorContainer,
-        InputProcessorInterface $defaultInputProcessor, ResponseProcessorInterface $defaultResponseProcessor,
-        InputProcessorInterface $httpInputProcessor, ResponseProcessorInterface $twigResponseProcessor,
-        InputProcessorInterface $cliInputProcessor, ResponseProcessorInterface $cliResponseProcessor,
-        InputProcessorInterface $compositeInputProcessor, ResponseProcessorInterface $compositeResponseProcessor
+        ContainerInterface $useCaseContainer,
+        UseCaseInterface $useCase,
+        ContainerInterface $inputProcessorContainer,
+        ContainerInterface $responseProcessorContainer,
+        InputProcessorInterface $defaultInputProcessor,
+        ResponseProcessorInterface $defaultResponseProcessor,
+        InputProcessorInterface $httpInputProcessor,
+        ResponseProcessorInterface $twigResponseProcessor,
+        InputProcessorInterface $cliInputProcessor,
+        ResponseProcessorInterface $cliResponseProcessor,
+        InputProcessorInterface $compositeInputProcessor,
+        ResponseProcessorInterface $compositeResponseProcessor
     )
     {
         $this->beConstructedWith($useCaseContainer, $inputProcessorContainer, $responseProcessorContainer);
@@ -66,9 +72,8 @@ class UseCaseContextResolverSpec extends ObjectBehavior
 
     public function it_throws_an_exception_if_use_case_has_not_been_registered(ContainerInterface $useCaseContainer)
     {
-        $useCaseContainer->get('unregistered_use_case')->willThrow(ItemNotFoundException::class);
-        $exception = new UseCaseNotFoundException('Use case "no_such_use_case_here" has not been registered.');
-        $this->shouldThrow($exception)->duringResolveContext('no_such_use_case_here');
+        $exception = new UseCaseNotFoundException('Use case "unregistered_use_case" has not been registered.');
+        $this->shouldThrow($exception)->duringResolveContext('unregistered_use_case');
     }
 
     public function it_throws_an_exception_if_use_case_does_not_exist(ContainerInterface $useCaseContainer)

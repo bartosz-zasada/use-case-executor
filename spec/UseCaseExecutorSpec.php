@@ -1,27 +1,23 @@
 <?php
 
-namespace spec\Bamiz\UseCaseBundle\Execution;
+namespace spec\Bamiz\UseCaseExecutor;
 
-use Bamiz\UseCaseBundle\Actor\ActorInterface;
-use Bamiz\UseCaseBundle\Actor\CompositeActorRecognizer;
-use Bamiz\UseCaseBundle\Execution\ActorCannotExecuteUseCaseException;
-use Bamiz\UseCaseBundle\Execution\UseCaseConfiguration;
-use Bamiz\UseCaseBundle\Execution\UseCaseContext;
-use Bamiz\UseCaseBundle\Execution\UseCaseContextResolver;
-use Bamiz\UseCaseBundle\Exception\AlternativeCourseException;
-use Bamiz\UseCaseBundle\Execution\UseCaseNotFoundException;
-use Bamiz\UseCaseBundle\Processor\Input\InputProcessorInterface;
-use Bamiz\UseCaseBundle\Processor\Response\InputAwareResponseProcessor;
-use Symfony\Component\HttpFoundation\Response as HttpResponse;
-use Bamiz\UseCaseBundle\Processor\Response\ResponseProcessorInterface;
-use Bamiz\UseCaseBundle\UseCase\UseCaseInterface;
+use Bamiz\UseCaseExecutor\Actor\ActorInterface;
+use Bamiz\UseCaseExecutor\Actor\CompositeActorRecognizer;
+use Bamiz\UseCaseExecutor\Execution\ActorCannotExecuteUseCaseException;
+use Bamiz\UseCaseExecutor\Execution\UseCaseConfiguration;
+use Bamiz\UseCaseExecutor\Execution\UseCaseContext;
+use Bamiz\UseCaseExecutor\Execution\UseCaseContextResolver;
+use Bamiz\UseCaseExecutor\Exception\AlternativeCourseException;
+use Bamiz\UseCaseExecutor\Execution\UseCaseNotFoundException;
+use Bamiz\UseCaseExecutor\Processor\Input\InputProcessorInterface;
+use Bamiz\UseCaseExecutor\Processor\Response\InputAwareResponseProcessor;
+use Bamiz\UseCaseExecutor\Processor\Response\ResponseProcessorInterface;
+use Bamiz\UseCaseExecutor\UseCase\UseCaseInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Bamiz\UseCaseBundle\Execution\UseCaseExecutor;
+use Bamiz\UseCaseExecutor\UseCaseExecutor;
 
-/**
- * @mixin \Bamiz\UseCaseBundle\Execution\UseCaseExecutor
- */
 class UseCaseExecutorSpec extends ObjectBehavior
 {
     public function let(
@@ -116,7 +112,7 @@ class UseCaseExecutorSpec extends ObjectBehavior
         ResponseProcessorInterface $responseProcessor,
         UseCaseInterface $useCase,
         \stdClass $useCaseResponse,
-        HttpResponse $output
+        \stdClass $output
     )
     {
         $responseProcessorOptions = ['template' => 'HelloBundle:hello:index.html.twig'];
@@ -139,7 +135,7 @@ class UseCaseExecutorSpec extends ObjectBehavior
         \stdClass $response,
         InputProcessorInterface $formInputProcessor,
         ResponseProcessorInterface $twigResponseProcessor,
-        HttpResponse $httpResponse
+        \stdClass $httpResponse
     )
     {
         $config = new UseCaseConfiguration([
@@ -168,7 +164,7 @@ class UseCaseExecutorSpec extends ObjectBehavior
         UseCaseContextResolver $contextResolver,
         UseCaseContext $context,
         ResponseProcessorInterface $responseProcessor,
-        HttpResponse $httpResponse,
+        \stdClass $httpResponse,
         UseCaseInterface $useCase
     )
     {
